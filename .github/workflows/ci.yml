@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: Install linting tools
+        run: |
+          pip install pyyaml
+          sudo apt-get update
+          sudo apt-get install -y shellcheck yamllint
+
+      - name: Validate Python syntax
+        run: |
+          find . -name "*.py" -type f -exec python3 -m py_compile {} +
+
+      - name: Validate Bash syntax
+        run: |
+          bash -n install.sh
+          find scripts -name "*.sh" -type f -exec bash -n {} +
+          find tests -name "*.sh" -type f -exec bash -n {} +
+
+      - name: Run shellcheck
+        run: |
+          shellcheck install.sh
+          find scripts -name "*.sh" -type f -exec shellcheck {} +
+
+      - name: Validate YAML files
+        run: |
+          yamllint templates/
+          python3 -c "import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/template.yaml'))"
+          python3 -c "import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/requirements.yaml'))"
