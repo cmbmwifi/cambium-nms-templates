@@ -282,7 +282,7 @@ except Exception as e:
 PYTHON_EOF
 )
 
-if [ $? -ne 0 ]; then
+if ! python3 "$SCRIPT_DIR/parse_requirements.py" "$REQUIREMENTS_FILE"; then
     red "Error parsing requirements.yaml"
     exit 1
 fi
@@ -334,7 +334,7 @@ ENV_VAR_MAP[add_hosts]="ADD_HOSTS"
 ENV_VAR_MAP[olt_ip_addresses]="OLT_IPS"
 
 # Process each input from parsed requirements
-while IFS='|' read -r prefix input_name input_type prompt default_val condition help_b64 example; do
+while IFS='|' read -r prefix input_name input_type prompt default_val condition help_b64 _example; do
     # Skip non-INPUT lines and empty names
     [ "$prefix" != "INPUT" ] && continue
     [ -z "$input_name" ] && continue
