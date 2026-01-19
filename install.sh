@@ -66,6 +66,40 @@ EOF
     exit 0
 fi
 
+# Check for required Python modules
+echo "$(yellow 'Checking dependencies...')"
+
+# Check for PyYAML
+if ! python3 -c "import yaml" 2>/dev/null; then
+    echo "  PyYAML not found, installing..."
+
+    # Try to install python3-yaml
+    if command -v apt-get &> /dev/null; then
+        if ! apt-get install -y python3-yaml 2>/dev/null; then
+            red "✗ Error: Failed to install python3-yaml"
+            echo "  Please run: sudo apt-get install python3-yaml"
+            exit 1
+        fi
+    elif command -v yum &> /dev/null; then
+        if ! yum install -y python3-pyyaml 2>/dev/null; then
+            red "✗ Error: Failed to install python3-pyyaml"
+            echo "  Please run: sudo yum install python3-pyyaml"
+            exit 1
+        fi
+    else
+        red "✗ Error: Cannot automatically install PyYAML"
+        echo "  Please install manually:"
+        echo "    Debian/Ubuntu: sudo apt-get install python3-yaml"
+        echo "    RHEL/CentOS: sudo yum install python3-pyyaml"
+        echo "    Or via pip: pip3 install pyyaml"
+        exit 1
+    fi
+
+    green "  ✓ PyYAML installed"
+else
+    green "  ✓ PyYAML available"
+fi
+
 # GitHub repository configuration
 GITHUB_BASE_URL="https://raw.githubusercontent.com/cmbmwifi/cambium-nms-templates/refs/heads/main"
 
