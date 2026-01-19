@@ -1,0 +1,359 @@
+---
+# Cambium Fiber OLT Zabbix Template Requirements
+# This file drives the installation process for the Cambium Fiber OLT template
+
+metadata:
+  name: "Cambium Fiber OLT by SSH"
+  description: "Zabbix monitoring template for Cambium Fiber OLT devices"
+  author: "Cambium Networks"
+  license: "Apache-2.0"
+
+compatibility:
+  nms:
+    platform: "zabbix"
+    min_version: "7.0.16"
+    max_version: "7.4.6+"
+  equipment:
+    vendor: "Cambium Networks"
+    product_line: "Fiber"
+    device_type: "OLT"
+    firmware_versions: "1.3.0+"
+
+user_inputs:
+  - name: "zabbix_api_url"
+    type: "url"
+    prompt: "Enter Zabbix API URL"
+    description: "Full URL to your Zabbix installation if different."
+    default: "http://localhost/zabbix"
+    example: "https://monitoring.example.com/zabbix"
+    validation:
+      pattern: "^https?://.*"
+      required: true
+    help_text: |
+      Enter the base URL where Zabbix is accessible.
+
+      Common paths:
+        - http://localhost/zabbix (default)
+        - https://monitoring.example.com/zabbix
+        - https://zabbix.company.com (root path)
+
+      The installer will auto-detect the API endpoint.
+
+  - name: "zabbix_api_token"
+    type: "secret"
+    prompt: "Enter Zabbix API token"
+    description: "API token for authentication (Zabbix 5.4+)"
+    validation:
+      min_length: 32
+      required: true
+    help_text: |
+      Creating a Zabbix API Token:
+
+      1. In Zabbix web UI, in the bottom of the left navigation bar
+      2. Select: User settings → API tokens
+      3. Click: the "Create API token" button
+      4. Enter a name like: "Installer" (or any descriptive name)
+      5. Click to set the expiration date → choose tomorrow
+         Note: The Token is only needed during installation
+      6. Click: Add
+      7. Copy the Auth token value from the dialog
+         IMPORTANT: Token is only shown once at creation
+      8. Paste the copied token in this prompt.
+      9. Back in the Zabbix web UI, click: Close
+
+  - name: "olt_password"
+    type: "secret"
+    prompt: "Enter OLT admin password"
+    description: "Default SSH password for OLT devices"
+    default: "password"
+    validation:
+      required: true
+    help_text: |
+      This password will be used for SSH access to OLT devices.
+      It will be stored as the {$OLT.PASS} macro in Zabbix.
+
+      Default: password
+
+      You can override this per-host after installation.
+
+  - name: "flush_template"
+    type: "boolean"
+    prompt: "Remove existing template before installing?"
+    description: "Delete the Cambium Fiber OLT template if it exists"
+    default: false
+    help_text: |
+      If you select Yes, the installer will remove the existing
+      "Cambium Fiber OLT by SSH" template before installing.
+
+      This is useful for:
+        - Reinstalling after template updates
+        - Fixing template corruption or conflicts
+        - Testing/development (clean slate each run)
+
+      Note: This only removes the template definition, not the hosts.
+      Use "Remove existing hosts" to also delete hosts.
+
+  - name: "flush_hosts"
+    type: "boolean"
+    prompt: "Remove existing hosts before installing?"
+    description: "Delete all hosts using the Cambium Fiber OLT template"
+    default: false
+    help_text: |
+      If you select Yes, the installer will remove ALL hosts that
+      are currently using the "Cambium Fiber OLT by SSH" template.
+
+      WARNING: This will delete all hosts and their historical data!
+
+      This is useful for:
+        - Testing/development (clean slate each run)
+        - Starting fresh after major configuration changes
+        - Removing misconfigured hosts
+
+      If you select No, existing hosts will be preserved and will
+      continue using the updated template.
+
+  - name: "add_hosts"
+    type: "boolean"
+    prompt: "Add OLT hosts now?"
+    description: "Create OLT host entries after template installation"
+    default: false
+    help_text: |
+      If you select Yes, you can add OLT devices immediately
+      after the template is installed.
+
+      If you select No, you can manually add hosts later in
+      the Zabbix web interface.
+
+  - name: "olt_ip_addresses"
+    type: "list"
+    prompt: "Enter OLT IP addresses (comma-separated)"
+    description: "IP addresses of OLT devices to add"
+    condition: "add_hosts == true"
+    validation:
+      pattern: "^[0-9.,\\s]+$"
+    example: "192.168.1.10, 192.168.1.11, 192.168.1.12"
+    help_text: |
+      Enter one or more OLT IP addresses separated by commas.
+
+      Examples:
+        - Single: 192.168.1.10
+        - Multiple: 192.168.1.10, 192.168.1.11, 192.168.1.12
+
+      Host names will be automatically retrieved from each OLT
+      via SSH (System.Name), or use IP-based naming if SSH fails.
+
+dependencies:
+  system_packages:
+    - name: "openssh-client"
+      description: "SSH client for connecting to OLT devices"
+      check_command: "ssh"
+    - name: "sshpass"
+      description: "Non-interactive SSH password authentication"
+      check_command: "sshpass"
+
+  package_managers:
+    debian:
+      installer: "apt-get"
+      packages: ["openssh-client", "sshpass"]
+    rhel:
+      installer: "yum"
+      packages: ["openssh-clients", "sshpass"]
+
+directories:
+  - path: "/var/cache/cambium-olt"
+    owner: "zabbix"
+    group: "zabbix"
+    mode: "0775"
+    description: "Cache directory for OLT JSON snapshots"
+    verify_writable: true
+
+configuration:
+  zabbix:
+    timeout: 10
+    description: "SSH connections can take 4-10 seconds on first run. Default timeout (3s) is too low."
+    config_file: "/etc/zabbix/zabbix_server.conf"
+    restart_service: "zabbix-server"
+    setting:
+      name: "Timeout"
+      value: 10
+
+scripts:
+  - name: "cambium_olt_ssh_json.py"
+    source: "cambium_olt_ssh_json.py"
+    destination: "{EXTERNALSCRIPTS}/cambium_olt_ssh_json.py"
+    mode: "0755"
+    owner: "zabbix"
+    group: "zabbix"
+    description: "External script to query OLT via SSH and return JSON data"
+
+template:
+  file: "template.yaml"
+  format: "yaml"
+  group: "Templates/Network devices/Cambium Fiber"
+  import_rules:
+    templates:
+      createMissing: true
+      updateExisting: true
+    items:
+      createMissing: true
+      updateExisting: true
+    discoveryRules:
+      createMissing: true
+      updateExisting: true
+    triggers:
+      createMissing: true
+      updateExisting: true
+    graphs:
+      createMissing: true
+      updateExisting: true
+    valueMaps:
+      createMissing: true
+      updateExisting: true
+
+  # Template identification in Zabbix
+  template_name: "Cambium Fiber OLT by SSH v1.3.0"
+
+macros:
+  - name: "{$OLT.PASS}"
+    description: "OLT admin password for SSH authentication"
+    type: "secret"
+    default: "password"
+    required: true
+  - name: "{$OLT_CACHE_TTL}"
+    description: "Cache time-to-live in seconds"
+    type: "text"
+    default: "300"
+    required: false
+
+hosts:
+  group: "Cambium Fiber OLT"
+  interface:
+    type: 1  # Agent interface
+    main: 1
+    useip: 1
+    port: "10050"
+
+  # Host naming function
+  naming:
+    method: "ssh_query"
+    command: "{EXTERNALSCRIPTS}/cambium_olt_ssh_json.py {HOST_IP} {OLT_PASS} System.Name"
+    fallback: "OLT-{HOST_IP_DASHED}"
+    timeout: 30
+
+  # Required macros for each host
+  required_macros:
+    - "{$OLT.PASS}"
+
+hooks:
+  pre_install:
+    - name: "check_root"
+      description: "Verify running as root for system modifications"
+      required: true
+
+    - name: "validate_nms_version"
+      description: "Verify NMS platform version compatibility"
+      required: true
+      inputs:
+        min_version: "7.0.16"
+        max_version: "7.4.6+"
+        platform: "zabbix"
+
+  post_install:
+    - name: "configure_zabbix_timeout"
+      description: "Configure Zabbix server timeout and restart service"
+      required: true
+
+  system_check:
+    - name: "verify_externalscripts_dir"
+      description: "Detect and verify ExternalScripts directory is writable"
+      priority: 1
+    - name: "verify_cache_dir_writable"
+      description: "Test zabbix user can write to cache directory"
+      priority: 2
+
+installation:
+  steps:
+    - name: "deps_ssh"
+      description: "Install SSH prerequisites"
+      dependencies: []
+
+    - name: "ensure_cache_dir"
+      description: "Create and configure cache directory"
+      dependencies: ["deps_ssh"]
+      requires_root: true
+
+    - name: "configure_timeout"
+      description: "Configure Zabbix server timeout"
+      dependencies: ["deps_ssh"]
+      requires_root: true
+
+    - name: "detect_externalscripts"
+      description: "Detect ExternalScripts directory"
+      dependencies: ["deps_ssh"]
+
+    - name: "install_getter"
+      description: "Install backend script to ExternalScripts"
+      dependencies: ["detect_externalscripts"]
+      requires_root: true
+
+    - name: "download_template"
+      description: "Download template YAML"
+      dependencies: []
+
+    - name: "auth_check"
+      description: "Validate Zabbix API access"
+      dependencies: []
+
+    - name: "ensure_group"
+      description: "Ensure template group exists"
+      dependencies: ["auth_check"]
+
+    - name: "import_template"
+      description: "Import template via Zabbix API"
+      dependencies: ["ensure_group", "download_template"]
+
+    - name: "add_hosts"
+      description: "Add OLT hosts (optional)"
+      dependencies: ["import_template", "install_getter"]
+      optional: true
+
+api:
+  authentication:
+    # Zabbix 7.4+ uses Bearer token, 7.0-7.2 uses auth field
+    methods:
+      - type: "bearer"
+        version_min: "7.4"
+        header: "Authorization: Bearer {token}"
+      - type: "auth_field"
+        version_max: "7.2"
+        payload_field: "auth"
+
+  endpoints:
+    discovery:
+      - "{base_url}/api_jsonrpc.php"
+      - "{base_url}/zabbix/api_jsonrpc.php"
+    probe_method: "apiinfo.version"
+
+notes:
+  - "SSH connections to OLTs can take 4-10 seconds on first run (cold cache)"
+  - "Default Zabbix timeout (3s) will cause external scripts to fail"
+  - "Template uses SSH with password authentication via sshpass"
+  - "OLT JSON data is cached in /var/cache/cambium-olt to improve performance"
+  - "Zabbix user must have write access to cache directory"
+  - "Template supports Zabbix 7.0 through 7.4 with automatic auth method detection"
+
+examples:
+  install:
+    basic: |
+      curl -o- https://raw.githubusercontent.com/cmbmwifi/cambium-nms-templates/main/install.sh | bash
+    with_password: |
+      # Set OLT password during installation
+      export OLT_PASSWORD="YourPassword"
+      curl -o- https://raw.githubusercontent.com/cmbmwifi/cambium-nms-templates/main/install.sh | bash
+
+  manual_host_creation:
+    - "Navigate to: Configuration → Hosts → Create host"
+    - "Set host name (preferably from System.Name via SSH)"
+    - "Add Agent interface with OLT IP address"
+    - "Link template: Cambium Fiber OLT by SSH v1.3.0"
+    - "Add macro: {$OLT.PASS} with your OLT password (type: Secret text)"

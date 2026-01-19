@@ -1,0 +1,1853 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: c25d3b54213249a68d9e6e0c7554ce86
+      name: 'Templates/Network devices/Cambium Fiber'
+  templates:
+    - uuid: 4df5d4d225414019b2853ced66502952
+      template: 'Cambium Fiber OLT by SSH v1.3.0'
+      name: 'Cambium Fiber OLT by SSH v1.3.0'
+      groups:
+        - name: 'Templates/Network devices/Cambium Fiber'
+      items:
+        - uuid: 147bc6e26ea1483d9df872fd94c1e3fc
+          name: '*'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.DNS"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: f4d268db85704a7483d7ad877a65a71b
+          name: '*'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.DNSv6"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: e4d2d0d3ff2944b29078ad0420ea6774
+          name: Duplex
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.Duplex"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 94442f0b42a943efa276f3cc07e64ce4
+          name: '*'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.Gateway"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 58a6c6ac817a4d9e8088b0d2061fff22
+          name: '*'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.Gatewayv6"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 92cfb4f1bf104e2790cd810b41f96abb
+          name: '*'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.IP"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 10fdc00b0b9b492dbbe0aa62429ec5b3
+          name: '*'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.IPv6"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: aeca7e5e286044ec8aeb5289a32b3165
+          name: Link
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.Link"]'
+          delay: 60s
+          history: 7d
+        - uuid: 4064365a92ae4d35b6a5748fbe046fb4
+          name: MAC
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.MAC"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 9ed7d942c54c4854855811965feebcb9
+          name: Name
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.Name"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 53601d2fa78e4a248874cbf19098ab50
+          name: 'Rx Broadcast Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.RxBroadcastPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: 1612a33bfd594535bc9dbf726a53ff28
+          name: 'Rx Bytes'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.RxBytes"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: 1afdf8aa6ac0457994ce5692cdc8c87e
+          name: 'Rx Drops Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.RxDropsPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: f1be3abfd47141638aa7bdb826663381
+          name: 'Rx Errors Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.RxErrorsPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: e459d86c2ca740109a0b269ae86675ad
+          name: 'Rx Multicast Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.RxMulticastPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: 8da6f2960a30416bb72cf14a50f45ff3
+          name: 'Rx Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.RxPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: 676fa527583d4c75805488ab4134c378
+          name: Speed
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.Speed"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 49b1e786f8524bc68793631ede6a0818
+          name: Status
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.Status"]'
+          delay: 60s
+          history: 7d
+        - uuid: c85c8662fe834ca0938a564ba5d76092
+          name: 'Tx Broadcast Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.TxBroadcastPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: f63207b29b30428c892a40632a84e469
+          name: 'Tx Bytes'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.TxBytes"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: 533e77781c8543189ae5d4a764fb7fa3
+          name: 'Tx Drops Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.TxDropsPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: 5bc97e3a1b0145f784238858654f3348
+          name: 'Tx Errors Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.TxErrorsPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: f4e5390fa23b451ab93974327cab856f
+          name: 'Tx Multicast Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.TxMulticastPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: ef7f29bfc1614a9198554f6ed1d62667
+          name: 'Tx Packets'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.TxPackets"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: SIMPLE_CHANGE
+              parameters:
+                - ''
+        - uuid: d764aa0b54c84207843a9db68a971a74
+          name: 'Auto Negotiation'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Network.MGMT.\"Auto-negotiation\""]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 4fd5dcb746844d069f6fd44dd4e061c2
+          name: 'OLT Auto Onboarding Locked'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.AutoOnboardingLocked"]'
+          delay: 60s
+          history: 7d
+        - uuid: f1ae60594b5d4d68a62af59ef862a3ba
+          name: 'OLT B E Status'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.BEStatus"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 97c4a14c7e3443b0a3e0051842c617e3
+          name: 'OLT Config Update Counter'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.ConfigUpdateCounter"]'
+          delay: 60s
+          history: 7d
+        - uuid: 6d4be0c3e5094d1fadd842be8bd0ad98
+          name: 'OLT Connected Users'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.ConnectedUsers"]'
+          delay: 60s
+          history: 7d
+        - uuid: 4b26780843c74100be6bd7d3bfafa6c2
+          name: 'OLT Cpu Usage'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.CpuUsage"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          triggers:
+            - uuid: b346d773dba64c7d82df1cd9b227541c
+              expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.CpuUsage"])>{$CPU.UTIL.MAX}'
+              name: 'High CPU usage'
+              priority: WARNING
+        - uuid: 8d80c0803abf4b6c8a1e07ffd9cf10a9
+          name: 'OLT Crash Data Available'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.CrashDataAvailable"]'
+          delay: 60s
+          history: 7d
+          triggers:
+            - uuid: 9496527cd9c4480a96c863ceddf206eb
+              expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.CrashDataAvailable"])=1'
+              name: 'Crash data available'
+              priority: HIGH
+        - uuid: af9705fae992438da534841995bdac36
+          name: 'OLT Current Software Version'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.CurrentSoftwareVersion"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: f9646e25f96d4e29b7e89d5cb093d1bc
+          name: 'OLT D A Status'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.DAStatus"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 7e48f8ea41d14e64a6e4aa1d8d622f3a
+          name: 'OLT Date Time'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.DateTime"]'
+          delay: 60s
+          history: 7d
+        - uuid: 90273abaee9046c98f76d01cc148d1b7
+          name: 'OLT Device Configuration State'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.DeviceConfigurationState"]'
+          delay: 60s
+          history: 7d
+        - uuid: 27a367eb08914fdba2d74e625d10e8fe
+          name: 'OLT Device Timezone Offset'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.DeviceTimezoneOffset"]'
+          delay: 60s
+          history: 7d
+        - uuid: 04b051da8cc540b2824ecd307c6ad8a7
+          name: 'OLT E S N'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.ESN"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 9259c10756514bdf99e204ea0b45f810
+          name: 'OLT Hw Version'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.HwVersion"]'
+          delay: 60s
+          history: 7d
+        - uuid: 66a008021e724c57b149b375866945ef
+          name: 'OLT Internet Status'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.InternetStatus"]'
+          delay: 60s
+          history: 7d
+        - uuid: 4240fac0b79a4db9992f2a73cf5304ee
+          name: 'OLT Memory Usage'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.MemoryUsage"]'
+          delay: 60s
+          history: 7d
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          triggers:
+            - uuid: 6cb2ec9e07524f679b51220d0b18aa8d
+              expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.MemoryUsage"])>{$MEMORY.UTIL.MAX}'
+              name: 'High memory usage'
+              priority: WARNING
+        - uuid: 1c212738df7247188b0ebe6b92899d30
+          name: 'OLT Model Description'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.ModelDescription"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: ac32db3b516d43069a7f6051098f53a2
+          name: 'OLT Model Name'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.ModelName"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 630428b3f77f457dbb8088e6f7f98100
+          name: 'OLT MSN'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.MSN"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 25ad4bed160b42e09a0107ad89cee891
+          name: 'OLT Name'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.Name"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 9e6e8030d00b45379253c0f4fcba3354
+          name: 'OLT State'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.System.state"]'
+          delay: 60s
+          history: 7d
+        - uuid: 618b034f78ed455b9d9b0ed44f97c5ce
+          name: 'OLT Vcore'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.System.Vcore"]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: 63105f20610147b9b278813813a4337f
+          name: 'OLT +3.3 V'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.System.\"+3.3V\""]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: 55be2048d2704b8193b699024ac6d729
+          name: 'OLT +5 V'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.System.\"+5V\""]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: 573345dd535647f48aae7c038d74cb66
+          name: 'OLT +12 V'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.System.\"+12V\""]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: ff04a34ba8704e90a41b7462c684984a
+          name: 'OLT Power'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.\"Left slot\".Power"]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: a726021d5985452c9e3236ccfb6ceef5
+          name: 'OLT State'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.\"Left slot\".state"]'
+          delay: 60s
+          history: 7d
+        - uuid: b897038db0714122a2dab5f8290579e7
+          name: 'OLT Temperature'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.\"Left slot\".Temperature"]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: b2544c2ddf214265a22bd6ef45039816
+          name: 'OLT Current Out'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.\"Left slot\".\"Current out\""]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: bdf3feff2c994180ba22ad9221c989e1
+          name: 'OLT Voltage In'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.\"Left slot\".\"Voltage in\""]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: b50de0afd36b4d48b423032f2418ed95
+          name: 'OLT Voltage Out'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.\"Left slot\".\"Voltage out\""]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+        - uuid: 96ec572c51b345d1a2374927076ef988
+          name: 'OLT State'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.PowerStatus.\"Right slot\".state"]'
+          delay: 60s
+          history: 7d
+        - uuid: c5560575557d4746b6294b9e16718bc4
+          name: 'OLT SKU'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.SKU"]'
+          delay: 60s
+          history: 7d
+        - uuid: 479a608baede40c0b44cb3aee9016db0
+          name: 'OLT System Boot Count'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.SystemBootCount"]'
+          delay: 60s
+          history: 7d
+          triggers:
+            - uuid: f57b42b51b0d4ef4b4bb44377da0caa7
+              expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.SystemBootCount"],#1)<>last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.SystemBootCount"],#2)'
+              name: 'System reboot detected'
+              priority: INFO
+        - uuid: 889138ca5a8e47b8b857737836386269
+          name: 'OLT System Ntp Alternate Server'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.systemNtpAlternateServer"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 2789b606e4874f8b80556560f0598eff
+          name: 'OLT System Ntp Preferred Server'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.systemNtpPreferredServer"]'
+          delay: 60s
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+        - uuid: 0d74c99e29ac45bdb3f2b0f3bb9d11a6
+          name: 'OLT System Uptime'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.SystemUptime"]'
+          delay: 60s
+          history: 7d
+        - uuid: 731227102a3f42f48f0ac1f0023487d7
+          name: 'OLT Temperature Bcm Switch'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.TemperatureBcmSwitch"]'
+          delay: 60s
+          history: 7d
+          value_type: FLOAT
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+        - uuid: f939f9d840b9426d9a133fc3082dfaa6
+          name: 'OLT Total Dl Pon Throughput'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.TotalDlPonThroughput"]'
+          delay: 60s
+          history: 7d
+        - uuid: d1d3fae8006f4c2987f3765071c092f6
+          name: 'OLT Total Ul Pon Throughput'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.TotalUlPonThroughput"]'
+          delay: 60s
+          history: 7d
+        - uuid: 3d8611c72d2b4c29ab5e49e8756d9046
+          name: 'ONU Online Percentage'
+          type: CALCULATED
+          key: olt.calculated.onu.online_percentage
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          params: '(sum(last_foreach(//olt.pon.OnlineOnuCount[*])) / sum(last_foreach(//olt.pon.OnuCount[*]))) * 100'
+          description: 'Percentage of ONUs that are currently online'
+          tags:
+            - tag: component
+              value: onu
+            - tag: metric
+              value: percentage
+        - uuid: 91a81cac60064499a79b24e66978a1f1
+          name: 'Total ONUs Configured'
+          type: CALCULATED
+          key: olt.calculated.onu.total_configured
+          history: 7d
+          params: 'sum(last_foreach(//olt.pon.OnuCount[*]))'
+          description: 'Total number of ONUs configured across all PON ports'
+          tags:
+            - tag: component
+              value: onu
+            - tag: metric
+              value: count
+        - uuid: 93f7ec2bb6f1450090b501d9395d80d6
+          name: 'Total ONUs Online'
+          type: CALCULATED
+          key: olt.calculated.onu.total_online
+          history: 7d
+          params: 'sum(last_foreach(//olt.pon.OnlineOnuCount[*]))'
+          description: 'Total number of ONUs online across all PON ports'
+          tags:
+            - tag: component
+              value: onu
+            - tag: metric
+              value: count
+        - uuid: c3064577914c4366893fac654f112081
+          name: 'Total PON Ports Up'
+          type: CALCULATED
+          key: olt.calculated.pon.ports_up
+          history: 7d
+          params: 'count(last_foreach(//olt.pon.State[*]),"eq","1")'
+          description: 'Number of PON ports in UP state'
+          tags:
+            - tag: component
+              value: pon
+            - tag: metric
+              value: count
+      discovery_rules:
+        - uuid: 4a42c40725be4e3e95d5811d509de184
+          name: 'NNI discovery'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[*].Name"]'
+          delay: 60s
+          item_prototypes:
+            - uuid: 0dc44f4e9092483dbe7bd3b0c0da4bd1
+              name: 'NNI {#IFNAME} Ber'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].Ber"]'
+              delay: 60s
+              history: 7d
+            - uuid: 547e4e85feb3488fa3ce91a66217e307
+              name: 'NNI {#IFNAME} Bip Units'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].BipUnits"]'
+              delay: 60s
+              history: 7d
+            - uuid: 597571ee83044a21b1b9d397b5eefe21
+              name: 'NNI {#IFNAME} D L Stream B W Kbits'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].DLStreamBWKbits"]'
+              delay: 60s
+              history: 7d
+            - uuid: bae4cd90a99e496e8549f0a8e88a9f47
+              name: 'NNI {#IFNAME} Link'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].Link"]'
+              delay: 60s
+              history: 7d
+            - uuid: 4f80aa17bb4b47198daa69b1c41ae804
+              name: 'NNI {#IFNAME} MAC'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].MAC"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: db2e9e99515344aaba00d46cfc378fb1
+              name: 'NNI {#IFNAME} M T U'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].MTU"]'
+              delay: 60s
+              history: 7d
+            - uuid: aaa6d31862cf497abfce037cfb3f89eb
+              name: 'NNI {#IFNAME} Name'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].Name"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 889b5dd701614b5a9a040dc48b8b8f34
+              name: 'NNI {#IFNAME} Phy Id'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].PhyId"]'
+              delay: 60s
+              history: 7d
+            - uuid: 00b9329dd45d4be1a1617333910ea2f8
+              name: 'NNI {#IFNAME} Rx Broadcast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].RxBroadcastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 3c39cb9253024e5d95d1955dcd8b299e
+              name: 'NNI {#IFNAME} Rx Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].RxBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 6782c171ff0048efa306225c080b87c3
+              name: 'NNI {#IFNAME} Rx Drops Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].RxDropsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: b4f245fe10544818b364d6037b4c104d
+              name: 'NNI {#IFNAME} Rx Errors Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].RxErrorsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 601ad5fd55064b779f845c2aee4dc5ee
+              name: 'NNI {#IFNAME} Rx Multicast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].RxMulticastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 11967d4070d3428a92a6ad1ce175b49e
+              name: 'NNI {#IFNAME} Rx Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].RxPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 747c345283454b8d9170da377892d4f4
+              name: 'NNI {#IFNAME} Rx Unicast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].RxUnicastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 5237204440c442ba9088d008dc4aae27
+              name: 'NNI {#IFNAME} Serial Number'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].SerialNumber"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 36cd46b623b24a4f8112a70e09cb0d57
+              name: 'NNI {#IFNAME} Speed'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].Speed"]'
+              delay: 60s
+              history: 7d
+            - uuid: 81798e710cdd4367bcbbd4150b860c4a
+              name: 'NNI {#IFNAME} Status'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].Status"]'
+              delay: 60s
+              history: 7d
+            - uuid: c3aaa96c4fc840cf88d64cc54b04a266
+              name: 'NNI {#IFNAME} Tx Broadcast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].TxBroadcastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: ba21089cf82a491db00402e4ab2387e1
+              name: 'NNI {#IFNAME} Tx Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].TxBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: a18a45e670b04f889b49fb31be650659
+              name: 'NNI {#IFNAME} Tx Drops Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].TxDropsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: a22f24a60b63438097d407eed172c457
+              name: 'NNI {#IFNAME} Tx Errors Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].TxErrorsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 8a73a4d564744c639e443146ffe2d9b7
+              name: 'NNI {#IFNAME} Tx Multicast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].TxMulticastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: c68ad6730d0843a6b3c8c95f15488ab6
+              name: 'NNI {#IFNAME} Tx Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].TxPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: d444f375e9ff408fb1e1488ae820d162
+              name: 'NNI {#IFNAME} Tx Unicast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].TxUnicastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 831b6d51c26f4ee395eecc0f10c19d35
+              name: 'NNI {#IFNAME} Type'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].Type"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 4b90e5c5913f4df28b9ecb04748d44b2
+              name: 'NNI {#IFNAME} U L Stream B W Kbits'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].ULStreamBWKbits"]'
+              delay: 60s
+              history: 7d
+            - uuid: 45697c18190048f4baa6ba052f8353e3
+              name: 'NNI {#IFNAME} Utilization Broadcast'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].UtilizationBroadcast"]'
+              delay: 60s
+              history: 7d
+            - uuid: 39c44afd56874ea0b4ffe4d3bb93ae50
+              name: 'NNI {#IFNAME} Utilization Multicast'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].UtilizationMulticast"]'
+              delay: 60s
+              history: 7d
+            - uuid: c3f7db98e9bf48b8bc04636b6e97b95f
+              name: 'NNI {#IFNAME} Utilization Total'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].UtilizationTotal"]'
+              delay: 60s
+              history: 7d
+            - uuid: 6cddcb90655b47a2b45f43120e97520b
+              name: 'NNI {#IFNAME} Utilization Unicast'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].UtilizationUnicast"]'
+              delay: 60s
+              history: 7d
+            - uuid: 58ebcae0a3ea4f018c5a34919bd2b6d9
+              name: 'NNI {#IFNAME} Vendor Name'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].VendorName"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+          trigger_prototypes:
+            - uuid: e451d6eb297645bebe52ba6beeb8698c
+              expression: '(rate(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].RxErrorsPackets"],5m) + rate(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].TxErrorsPackets"],5m)) > 100'
+              name: 'NNI {#IFNAME} high error rate'
+              priority: WARNING
+            - uuid: d56db49f3f24438caa05bc98ccf69f1f
+              expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].Link"])=0 and last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","Ethernet[?Name={#IFNAME}].Status"])=1'
+              name: 'NNI {#IFNAME} link down'
+              priority: AVERAGE
+              manual_close: 'YES'
+          lld_macro_paths:
+            - lld_macro: '{#IFNAME}'
+              path: $.Name
+        - uuid: a1129a530d8d4ee8845b193f09821948
+          name: 'ONU discovery'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[*]"]'
+          delay: 60s
+          item_prototypes:
+            - uuid: d71f6ee8b78c491b9587ec41e6118089
+              name: 'ONU {#ONUSN} Alarms'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].Alarms"]'
+              delay: 60s
+              history: 7d
+            - uuid: cb230c7f59144e67ab6d08e8589b74b0
+              name: 'ONU {#ONUSN} Connection Time'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ConnectionTime"]'
+              delay: 60s
+              history: 7d
+            - uuid: 2158e869366443609c2b3891dc6b3148
+              name: 'ONU {#ONUSN} Distance'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].Distance"]'
+              delay: 60s
+              history: 7d
+            - uuid: bc82786b7e1745a1a046d4a33ad55184
+              name: 'ONU {#ONUSN} D L Broadcast Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLBroadcastBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: fe87b4736bbe4a6bbc21ef3206819d0a
+              name: 'ONU {#ONUSN} D L Dropped Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLDroppedPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 5c191050d5a14690b07baf06173fa6a5
+              name: 'ONU {#ONUSN} D L Multicast Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLMulticastBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 47e6557094974809affd0ee0fb42745a
+              name: 'ONU {#ONUSN} D L Packet Count'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLPacketCount"]'
+              delay: 60s
+              history: 7d
+            - uuid: f22bd010b7374b47a74c999efa427597
+              name: 'ONU {#ONUSN} D L Stream B W Kbits'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLStreamBWKbits"]'
+              delay: 60s
+              history: 7d
+            - uuid: 97b7a818526f4c6a946dbb02d884135e
+              name: 'ONU {#ONUSN} D L Stream Type'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLStreamType"]'
+              delay: 60s
+              history: 7d
+            - uuid: 72ec78c803ad4739a1a7dbf4f71d8414
+              name: 'ONU {#ONUSN} D L Total Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLTotalBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: c65da8bc76ba4eaf82e128d33dbef89a
+              name: 'ONU {#ONUSN} Hw Type'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].HwType"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 4b165634905a42619adebdc88f69b919
+              name: 'ONU {#ONUSN} Hw Version'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].HwVersion"]'
+              delay: 60s
+              history: 7d
+            - uuid: b040bf1ae9ee4033bf71042e667edc69
+              name: 'ONU {#ONUSN} In Band Mgmt Cvlan'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].InBandMgmtCvlan"]'
+              delay: 60s
+              history: 7d
+            - uuid: 9984a3a4730b40589ff56eaf52e3ab3f
+              name: 'ONU {#ONUSN} In Band Mgmt Svlan'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].InBandMgmtSvlan"]'
+              delay: 60s
+              history: 7d
+            - uuid: 869640984b174446be7bdc18e2234b42
+              name: 'ONU {#ONUSN} I P'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].IP"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 32d7f19c450745638895e4a59d3424a1
+              name: 'ONU {#ONUSN} L A N Rx Broadcast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].LANRxBroadcastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 300b2cc6f0d64b5399cfd465213c84d4
+              name: 'ONU {#ONUSN} L A N Rx Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].LANRxBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 2ca2023542844474a4e05efdd562332a
+              name: 'ONU {#ONUSN} L A N Rx Errors Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].LANRxErrorsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 21a26084a3424573a4c17b986c7c6427
+              name: 'ONU {#ONUSN} L A N Rx Multicast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].LANRxMulticastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: cfc806095da74869b3cd39155665c252
+              name: 'ONU {#ONUSN} L A N Tx Broadcast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].LANTxBroadcastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 497874f8cd654fe48243ff7afd030802
+              name: 'ONU {#ONUSN} L A N Tx Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].LANTxBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 9c5ba69c14a34a5fb399f35d26fcdd6e
+              name: 'ONU {#ONUSN} L A N Tx Errors Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].LANTxErrorsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: a211877b462e4b00bf0c583a4b09a6ca
+              name: 'ONU {#ONUSN} L A N Tx Multicast Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].LANTxMulticastPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 3f17a88999eb46788e08aac5baaa1bae
+              name: 'ONU {#ONUSN} Model Description'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ModelDescription"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 3118238b92a8439587fda3f1760a282e
+              name: 'ONU {#ONUSN} Model Name'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ModelName"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 4890ec8e88954454a4d01096741bc69a
+              name: 'ONU {#ONUSN} Name'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].Name"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: c00bab428d78422c8ee7a13b1e13e3b7
+              name: 'ONU {#ONUSN} O L T Phy Port'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].OLTPhyPort"]'
+              delay: 60s
+              history: 7d
+            - uuid: 15bf8ca5bc424382a2ade6a08800c773
+              name: 'ONU {#ONUSN} O L T Port'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].OLTPort"]'
+              delay: 60s
+              history: 7d
+            - uuid: 52b4128e69e94e40829b33d69df78ffb
+              name: 'ONU {#ONUSN} Onu Id'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].OnuId"]'
+              delay: 60s
+              history: 7d
+            - uuid: 9599dc88ea7847c3bdd1f13830e57b48
+              name: 'ONU {#ONUSN} Onu Index'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].OnuIndex"]'
+              delay: 60s
+              history: 7d
+            - uuid: 5722cdbcf40e4dd585b7290b4773059a
+              name: 'ONU {#ONUSN} PON Downlink Signal'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONDownlinkSignal"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: ee981ceb4c4545998b6604eba81de25d
+              name: 'ONU {#ONUSN} PON Laser Bias Current'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONLaserBiasCurrent"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+            - uuid: f963b931b1c943a7815bfe74f0ecb5ad
+              name: 'ONU {#ONUSN} PON Rx Power'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONRxPower"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+              trigger_prototypes:
+                - uuid: ee1cd5f9568b497fa5f20bd81b5f8365
+                  expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONRxPower"])<{$ONU.RXPOWER.MIN.WARN}'
+                  name: 'ONU {#ONUSN} low RX power'
+                  priority: WARNING
+            - uuid: 179dec49558846aaa173f0e417c058a4
+              name: 'ONU {#ONUSN} PON Temperature'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONTemperature"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: f409ebf5d83f4d709ad28dbe12e0d33c
+              name: 'ONU {#ONUSN} PON Tx Power'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONTxPower"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: 4b7df7c3cba94febbca04ef40dad8ca6
+              name: 'ONU {#ONUSN} PON Uplink Signal'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONUplinkSignal"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: ecb2b2b001a04c3983cdd34e80fb7115
+              name: 'ONU {#ONUSN} Problematic'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].Problematic"]'
+              delay: 60s
+              history: 7d
+            - uuid: af89858a265941c19fddffce13658807
+              name: 'ONU {#ONUSN} SKU'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].SKU"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: e404947471c641c89010982d86b193dc
+              name: 'ONU {#ONUSN} S N'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].SN"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 15191f50ea6d49bc86e00a39e0272e2c
+              name: 'ONU {#ONUSN} State'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].State"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 3cebaea372394dc584f873c36adaf5dd
+              name: 'ONU {#ONUSN} Status'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].Status"]'
+              delay: 60s
+              history: 7d
+            - uuid: 78f51cdcc62e4998974109f39a884de5
+              name: 'ONU {#ONUSN} Sw Version Active Bank'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].SwVersionActiveBank"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: cef216be713b4f31b35936bb74c4cd54
+              name: 'ONU {#ONUSN} Sw Version Inactive Bank'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].SwVersionInactiveBank"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 975b8b389765454c9ad9b5642f0a5059
+              name: 'ONU {#ONUSN} Sys Temperature'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].SysTemperature"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: 52b40fd1d5a04278b027afd1b8daeef3
+              name: 'ONU {#ONUSN} U L Broadcast Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULBroadcastBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 5c0469ed64c14791adb9ce408e756123
+              name: 'ONU {#ONUSN} U L Dropped Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULDroppedPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 61b6f12feecd455183dc68674895e9a5
+              name: 'ONU {#ONUSN} U L Multicast Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULMulticastBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 5610eb8ae73a4c5ebb6d5a5d358ac53b
+              name: 'ONU {#ONUSN} U L Packet Count'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULPacketCount"]'
+              delay: 60s
+              history: 7d
+            - uuid: ba1cf57d13f640cd8967b672b27b2e47
+              name: 'ONU {#ONUSN} U L Stream B W Kbits'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULStreamBWKbits"]'
+              delay: 60s
+              history: 7d
+            - uuid: 049cd707bdee40e19d5432c199176fbc
+              name: 'ONU {#ONUSN} U L Stream Type'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULStreamType"]'
+              delay: 60s
+              history: 7d
+            - uuid: f9ecc09cf07848ae9ceee5a91f7a74f7
+              name: 'ONU {#ONUSN} U L Total Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULTotalBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 5a2b0cef7a484f7f82dc69bf92af4325
+              name: 'ONU {#ONUSN} Upgrade Status'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].UpgradeStatus"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 7e368da9b57e4ac7900750543ce4707b
+              name: 'ONU {#ONUSN} Up Time'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].UpTime"]'
+              delay: 60s
+              history: 7d
+          trigger_prototypes:
+            - uuid: 3cef1c3e90fa4cd4b43da9cfeeaeffca
+              expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].State"])=0 and last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].Status"])=1'
+              name: 'ONU {#ONUSN} offline'
+              priority: AVERAGE
+              manual_close: 'YES'
+          graph_prototypes:
+            - uuid: beb56ab3175e448ea8a4dcc74c555e44
+              name: '{#PONNAME}/{#ONUSN} - ONT Bandwidth Consumption'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLTotalBytes"]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULTotalBytes"]'
+            - uuid: 0f772e37a8e949539c215299b59194dd
+              name: '{#PONNAME}/{#ONUSN} - ONT Connection Status'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].Status"]'
+            - uuid: 31c2b3e7f30a4d74a74984546a9c39a2
+              name: '{#PONNAME}/{#ONUSN} - ONT Optical Signal'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONDownlinkSignal"]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].PONUplinkSignal"]'
+            - uuid: f82c9a10d2ea47ae8265ecf8bb921765
+              name: '{#PONNAME}/{#ONUSN} - ONT Power / Dying Gasp Indicators'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].Alarms"]'
+            - uuid: 005ea5562d864188943eea1223c13806
+              name: '{#PONNAME}/{#ONUSN} - ONT Stability (Reconnects)'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ConnectionTime"]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].UpTime"]'
+            - uuid: 3608b2b1fca14570aa79ae606237c8fc
+              name: '{#PONNAME}/{#ONUSN} - ONT Throughput'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].DLStreamBWKbits"]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","ONU[?SN={#ONUSN}].ULStreamBWKbits"]'
+          lld_macro_paths:
+            - lld_macro: '{#ONUSN}'
+              path: $.SN
+            - lld_macro: '{#PONNAME}'
+              path: $.OLTPort
+        - uuid: 7dd64f80bc624c46b8080733ab9ecbae
+          name: 'PON discovery'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[*].Name"]'
+          delay: 60s
+          item_prototypes:
+            - uuid: cf20975c817041dbb7daf012d28cca61
+              name: 'PON {#PONNAME} Ber'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].Ber"]'
+              delay: 60s
+              history: 7d
+            - uuid: 93df9a3bb9b649e7a494a301e0610a02
+              name: 'PON {#PONNAME} Ber Percent'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].BerPercent"]'
+              delay: 60s
+              history: 7d
+            - uuid: a82de443b247479b9358752aebe06c58
+              name: 'PON {#PONNAME} D L Stream B W Kbits'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].DLStreamBWKbits"]'
+              delay: 60s
+              history: 7d
+            - uuid: fadddbfeca2f4327b4b4d68e5da21922
+              name: 'PON {#PONNAME} D L Utilization'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].DLUtilization"]'
+              delay: 60s
+              history: 7d
+            - uuid: 6d4228bfaaac42a696b6aac786ce761c
+              name: 'PON {#PONNAME} Hw Type'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].HwType"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: a9a9d60fd936484896ac7eae6a872a19
+              name: 'PON {#PONNAME} I D'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].ID"]'
+              delay: 60s
+              history: 7d
+            - uuid: 76d643fbb46148179fb0f067c5dbc8f7
+              name: 'PON {#PONNAME} Laser Bias Current'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].LaserBiasCurrent"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+            - uuid: 44f6b093cd5c43d5a8aca63abe12af54
+              name: 'PON {#PONNAME} Name'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].Name"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 69ecb7ab78334296ad4e35a5dada0b87
+              name: 'PON {#PONNAME} Offline Onu Count'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].OfflineOnuCount"]'
+              delay: 60s
+              history: 7d
+            - uuid: 955bb90eed6848c08d67e18572230f5a
+              name: 'PON {#PONNAME} Online Onu Count'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].OnlineOnuCount"]'
+              delay: 60s
+              history: 7d
+            - uuid: e0a033ef74cd4290ae48194ab155fb26
+              name: 'PON {#PONNAME} Phy Id'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].PhyId"]'
+              delay: 60s
+              history: 7d
+            - uuid: 9bf6d1d2974e4a23a33204a79799420a
+              name: 'PON {#PONNAME} Rx Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].RxBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 96281d8c2b0f41ad930ac68fb7c8d501
+              name: 'PON {#PONNAME} Rx Drops Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].RxDropsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 5bf337f480f9479691c2a81fe013e913
+              name: 'PON {#PONNAME} Rx Errors Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].RxErrorsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: d4baf69d63b74a35a3f14a733cbd8a0b
+              name: 'PON {#PONNAME} Rx Power'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].RxPower"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: 762dc12aa6134e3ca6518545a9624457
+              name: 'PON {#PONNAME} Rx Power Percentage'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].RxPowerPercentage"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: c3a53a99ce0c47da92221ee5530ab6bf
+              name: 'PON {#PONNAME} State'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].State"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: ba104103643548bfaa7aea3fa640c8ea
+              name: 'PON {#PONNAME} Status'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].Status"]'
+              delay: 60s
+              history: 7d
+            - uuid: fdb04527492f4ea5adcc23166b06dc99
+              name: 'PON {#PONNAME} Temperature'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].Temperature"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: 170ba4f4542e4a7d94e2b040d55af1eb
+              name: 'PON {#PONNAME} Tx Bytes'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].TxBytes"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 00700556636c45f68769eb5bcb7af226
+              name: 'PON {#PONNAME} Tx Drops'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].TxDrops"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: 0f1f4241692e47199bc25d5b4bb4eff9
+              name: 'PON {#PONNAME} Tx Drops Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].TxDropsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: fbc22ac6355f40568f17e4f59a92daa1
+              name: 'PON {#PONNAME} Tx Errors Packets'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].TxErrorsPackets"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: SIMPLE_CHANGE
+                  parameters:
+                    - ''
+            - uuid: a75fb5cafd01471d9fea751ff1cc2aa6
+              name: 'PON {#PONNAME} Tx Power'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].TxPower"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: e32fe8360f8f43008074666f50c6f1d0
+              name: 'PON {#PONNAME} Tx Power Percentage'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].TxPowerPercentage"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: bf716878f923498c816ac94234c6daaa
+              name: 'PON {#PONNAME} U L Stream B W Kbits'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].ULStreamBWKbits"]'
+              delay: 60s
+              history: 7d
+            - uuid: 07fa90ee718c49d89f433c102caf510c
+              name: 'PON {#PONNAME} U L Utilization'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].ULUtilization"]'
+              delay: 60s
+              history: 7d
+          trigger_prototypes:
+            - uuid: b6001e64a02e494c9abed906e88aa59b
+              expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].Status"])=0 and length(last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].State"]))>0'
+              name: 'PON {#PONNAME} link down'
+              priority: HIGH
+            - uuid: 0a35b7b732e444808b2db5b3586f739d
+              expression: 'last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].RxPower"])<{$PON.RXPOWER.MIN.WARN} and last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].Status"])=1 and last(/Cambium Fiber OLT by SSH v1.3.0/cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].OnlineOnuCount"])>0'
+              name: 'PON {#PONNAME} low RX power'
+              priority: WARNING
+          graph_prototypes:
+            - uuid: 69b6c1a350c2480aa9ddb7d967bf04f0
+              name: '{#PONNAME} - PON ONU Counts'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].OnlineOnuCount"]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].OfflineOnuCount"]'
+            - uuid: 7e0dfa17f7bb4cd5abff7d8936e36f81
+              name: '{#PONNAME} - PON Optical Power'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].RxPower"]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].TxPower"]'
+            - uuid: 8c879adb04014bf0b5fb6bedc349d92b
+              name: '{#PONNAME} - PON Throughput'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].DLStreamBWKbits"]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Cambium Fiber OLT by SSH v1.3.0'
+                    key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","PON[?Name={#PONNAME}].ULStreamBWKbits"]'
+          lld_macro_paths:
+            - lld_macro: '{#PONNAME}'
+              path: $.Name
+        - uuid: 32328a09924043e3a699bf4263fd34f2
+          name: 'Fans discovery'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.Fans[*].Name"]'
+          delay: 60s
+          item_prototypes:
+            - uuid: 9b6075ce96824d4eb65474e563b18ad6
+              name: 'Fan {#NAME} Name'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.Fans[?Name={#NAME}].Name"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: db0bcb35eabd4d3da8795070faf9eb5d
+              name: 'Fan {#NAME} Percentage'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.Fans[?Name={#NAME}].Percentage"]'
+              delay: 60s
+              history: 7d
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+            - uuid: 91f3a61c298540b0a971b13f09bcf946
+              name: 'Fan {#NAME} Rpm'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.Fans[?Name={#NAME}].Rpm"]'
+              delay: 60s
+              history: 7d
+          lld_macro_paths:
+            - lld_macro: '{#NAME}'
+              path: $.Name
+        - uuid: 327d34afcebd4a5b8c85cf3e7be17b80
+          name: 'Thermal discovery'
+          type: EXTERNAL
+          key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.ThermalStatus[*].Name"]'
+          delay: 60s
+          item_prototypes:
+            - uuid: 9d1c02ee59c74402bcd55ae5a4a39b6e
+              name: 'Thermal {#NAME} Name'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.ThermalStatus[?Name={#NAME}].Name"]'
+              delay: 60s
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+            - uuid: 8f37bb2eaa6f42d4bc2e377a73eccc21
+              name: 'Thermal {#NAME} Temperature'
+              type: EXTERNAL
+              key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.ThermalStatus[?Name={#NAME}].Temperature"]'
+              delay: 60s
+              history: 7d
+              value_type: FLOAT
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+          lld_macro_paths:
+            - lld_macro: '{#NAME}'
+              path: $.Name
+      tags:
+        - tag: component
+          value: network
+        - tag: protocol
+          value: ssh
+        - tag: target
+          value: olt
+        - tag: vendor
+          value: cambium
+      macros:
+        - macro: '{$CPU.UTIL.MAX}'
+          value: '90'
+          description: 'Maximum CPU utilization threshold (percent)'
+        - macro: '{$FAN.RPM.MIN.WARN}'
+          value: '3000'
+          description: 'Minimum fan RPM warning threshold'
+        - macro: '{$LINK.STATUS.DOWN.TIME}'
+          value: 5m
+          description: 'Time before alerting on link down status'
+        - macro: '{$MEMORY.UTIL.MAX}'
+          value: '90'
+          description: 'Maximum memory utilization threshold (percent)'
+        - macro: '{$OLT.PASS}'
+          value: password
+        - macro: '{$ONU.DISTANCE.MAX}'
+          value: '20000'
+          description: 'Maximum ONU distance threshold (meters)'
+        - macro: '{$ONU.OFFLINE.TIME}'
+          value: 5m
+          description: 'Time before alerting on ONU offline status'
+        - macro: '{$ONU.RXPOWER.MIN.WARN}'
+          value: '-27'
+          description: 'ONU RX power minimum warning threshold (dBm)'
+        - macro: '{$PON.RXPOWER.MIN.CRIT}'
+          value: '-30'
+          description: 'PON RX power minimum critical threshold (dBm)'
+        - macro: '{$PON.RXPOWER.MIN.WARN}'
+          value: '-28'
+          description: 'PON RX power minimum warning threshold (dBm)'
+        - macro: '{$PON.TEMP.MAX.WARN}'
+          value: '75'
+          description: 'PON transceiver temperature warning threshold (°C)'
+        - macro: '{$PSU.VOLTAGE.3.3V.MAX}'
+          value: '3.47'
+          description: 'Maximum 3.3V rail voltage (±5% tolerance)'
+        - macro: '{$PSU.VOLTAGE.3.3V.MIN}'
+          value: '3.14'
+          description: 'Minimum 3.3V rail voltage (±5% tolerance)'
+        - macro: '{$PSU.VOLTAGE.5V.MAX}'
+          value: '5.25'
+          description: 'Maximum 5V rail voltage (±5% tolerance)'
+        - macro: '{$PSU.VOLTAGE.5V.MIN}'
+          value: '4.75'
+          description: 'Minimum 5V rail voltage (±5% tolerance)'
+        - macro: '{$PSU.VOLTAGE.12V.MAX}'
+          value: '12.6'
+          description: 'Maximum 12V rail voltage (±5% tolerance)'
+        - macro: '{$PSU.VOLTAGE.12V.MIN}'
+          value: '11.4'
+          description: 'Minimum 12V rail voltage (±5% tolerance)'
+        - macro: '{$TEMP.MAX.CRIT}'
+          value: '85'
+          description: 'Temperature critical threshold (°C)'
+        - macro: '{$TEMP.MAX.WARN}'
+          value: '70'
+          description: 'Temperature warning threshold (°C)'
+      valuemaps:
+        - uuid: 5a17807508a24ce69a99fb542fb07eb8
+          name: 'Admin Status'
+          mappings:
+            - value: '0'
+              newvalue: Disabled
+            - value: '1'
+              newvalue: Enabled
+        - uuid: b7ef0211d0f949a9b58d58e56672f4f9
+          name: 'Boolean State'
+          mappings:
+            - value: '0'
+              newvalue: 'False'
+            - value: '1'
+              newvalue: 'True'
+        - uuid: af3631e08da84eeaaf109404dadb4057
+          name: 'Internet Status'
+          mappings:
+            - value: '0'
+              newvalue: Offline
+            - value: '1'
+              newvalue: Online
+        - uuid: 670ff72145ad415aad3b7e00a8372290
+          name: 'Link Status'
+          mappings:
+            - value: '0'
+              newvalue: Down
+            - value: '1'
+              newvalue: Up
+        - uuid: 1c2357b20da34509b99a0881de5c1dcf
+          name: 'Operational Status'
+          mappings:
+            - value: '0'
+              newvalue: Down
+            - value: '1'
+              newvalue: Up
+  graphs:
+    - uuid: fa754dcc546f4e3680ea590ca7e966d7
+      name: 'OLT System Health'
+      graph_items:
+        - color: 1A7C11
+          item:
+            host: 'Cambium Fiber OLT by SSH v1.3.0'
+            key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.CpuUsage"]'
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: 'Cambium Fiber OLT by SSH v1.3.0'
+            key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.MemoryUsage"]'
+    - uuid: fb2b01021b30468184a8167c79a3a021
+      name: 'OLT Total PON Throughput'
+      graph_items:
+        - color: 1A7C11
+          item:
+            host: 'Cambium Fiber OLT by SSH v1.3.0'
+            key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.TotalDlPonThroughput"]'
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: 'Cambium Fiber OLT by SSH v1.3.0'
+            key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.TotalUlPonThroughput"]'
+    - uuid: e61d71e70cfd4672b590890273bb74aa
+      name: 'OLT Uptime / Reboots'
+      graph_items:
+        - color: 1A7C11
+          item:
+            host: 'Cambium Fiber OLT by SSH v1.3.0'
+            key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.SystemUptime"]'
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: 'Cambium Fiber OLT by SSH v1.3.0'
+            key: 'cambium_olt_ssh_json.py["{HOST.CONN}","{$OLT.PASS}","System.SystemBootCount"]'
