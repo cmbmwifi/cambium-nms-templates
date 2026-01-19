@@ -1,0 +1,35 @@
+version: '3.8'
+
+# Test infrastructure: MySQL database server
+# Shared across all integration tests
+
+networks:
+  test-network:
+    name: zabbix-shared-network
+    external: true
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: test-mysql
+    networks:
+      test-network:
+        ipv4_address: 172.20.0.20
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_bin
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb-buffer-pool-size=256M
+      - --innodb-log-file-size=128M
+      - --innodb-flush-log-at-trx-commit=2
+      - --innodb-flush-method=O_DIRECT
+    # No volume mount - databases are non-persistent for clean test isolation
+    # Each test recreates its database, no storage accumulation
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

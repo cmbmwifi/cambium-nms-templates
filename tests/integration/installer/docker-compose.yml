@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  installer-test:
+    build:
+      context: ../zabbix
+      dockerfile: Dockerfile
+    container_name: installer-menu-test
+    volumes:
+      - ../../../:/root/cambium-nms-templates:ro
+    working_dir: /root/cambium-nms-templates
+    command: tail -f /dev/null

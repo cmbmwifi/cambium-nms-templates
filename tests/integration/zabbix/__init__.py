@@ -1,0 +1,1 @@
+"""Zabbix integration test suite."""

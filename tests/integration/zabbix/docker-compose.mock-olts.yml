@@ -1,0 +1,51 @@
+version: '3.8'
+
+# Test infrastructure: Mock OLT devices
+# Shared across all Zabbix integration tests
+
+networks:
+  test-network:
+    name: zabbix-shared-network
+    external: true
+
+services:
+  # Mock OLT devices (shared by all tests)
+  mock-olt-1:
+    build:
+      context: ../mock-olt
+      dockerfile: Dockerfile
+    hostname: olt-building-a
+    networks:
+      test-network:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "2222:22"
+    volumes:
+      - ../../fixtures:/app/fixtures:ro
+    environment:
+      - OLT_NAME=OLT-Building-A
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 22))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  mock-olt-2:
+    build:
+      context: ../mock-olt
+      dockerfile: Dockerfile
+    hostname: olt-building-b
+    networks:
+      test-network:
+        ipv4_address: 172.20.0.11
+    ports:
+      - "2223:22"
+    volumes:
+      - ../../fixtures:/app/fixtures:ro
+    environment:
+      - OLT_NAME=OLT-Building-B
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 22))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
