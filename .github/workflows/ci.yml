@@ -18,9 +18,9 @@ jobs:
 
       - name: Install linting tools
         run: |
-          pip install pyyaml
+          pip install pyyaml mypy types-PyYAML
           sudo apt-get update
-          sudo apt-get install -y shellcheck yamllint python3-mypy python3-typeshed
+          sudo apt-get install -y shellcheck yamllint
 
       - name: Validate Python syntax
         run: |
