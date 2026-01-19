@@ -282,7 +282,9 @@ except Exception as e:
 PYTHON_EOF
 )
 
-if ! python3 "$SCRIPT_DIR/parse_requirements.py" "$REQUIREMENTS_FILE"; then
+# Check if parsing succeeded
+# shellcheck disable=SC2181
+if [ $? -ne 0 ]; then
     red "Error parsing requirements.yaml"
     exit 1
 fi
