@@ -176,6 +176,8 @@ fi
 # Update template path based on selections
 TEMPLATE_PATH="$BASE_PATH/templates/$NMS_PLATFORM/$PRODUCT_TEMPLATE"
 REQUIREMENTS_FILE="$TEMPLATE_PATH/requirements.yaml"
+TEMPLATE_FILE="$TEMPLATE_PATH/template.yaml"
+SCRIPT_FILE="$TEMPLATE_PATH/cambium_olt_ssh_json.py"
 
 # Download required files in GitHub mode
 if [ "$MODE" = "github" ]; then
@@ -187,13 +189,11 @@ if [ "$MODE" = "github" ]; then
     fi
 
     # Download template.yaml
-    TEMPLATE_FILE="$TEMPLATE_PATH/template.yaml"
     if ! download_github_file "templates/$NMS_PLATFORM/$PRODUCT_TEMPLATE/template.yaml" "$TEMPLATE_FILE"; then
         exit 1
     fi
 
     # Download Python script
-    SCRIPT_FILE="$TEMPLATE_PATH/cambium_olt_ssh_json.py"
     if ! download_github_file "templates/$NMS_PLATFORM/$PRODUCT_TEMPLATE/cambium_olt_ssh_json.py" "$SCRIPT_FILE"; then
         exit 1
     fi
