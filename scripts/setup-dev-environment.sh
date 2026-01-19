@@ -33,13 +33,13 @@ fi
 
 # Install ShellCheck (platform-specific)
 echo ""
-echo "📦 Installing ShellCheck..."
+echo "📦 Installing ShellCheck and type checking tools..."
 if command -v apt-get &> /dev/null; then
     echo "  Detected apt-get (Debian/Ubuntu)"
-    if sudo apt-get install -y shellcheck 2>/dev/null; then
-        echo -e "${GREEN}✓ ShellCheck installed${NC}"
+    if sudo apt-get install -y shellcheck python3-mypy python3-typeshed 2>/dev/null; then
+        echo -e "${GREEN}✓ ShellCheck and type checking tools installed${NC}"
     else
-        echo -e "${YELLOW}⚠ Could not install ShellCheck via apt-get (may need sudo)${NC}"
+        echo -e "${YELLOW}⚠ Could not install tools via apt-get (may need sudo)${NC}"
     fi
 elif command -v brew &> /dev/null; then
     echo "  Detected Homebrew (macOS/Linux)"
@@ -48,9 +48,11 @@ elif command -v brew &> /dev/null; then
     else
         echo -e "${YELLOW}⚠ Could not install ShellCheck via Homebrew${NC}"
     fi
+    echo "  Note: Install mypy via pip: pip install mypy types-PyYAML"
 else
-    echo -e "${YELLOW}⚠ No package manager found - install ShellCheck manually${NC}"
-    echo "  Visit: https://github.com/koalaman/shellcheck#installing"
+    echo -e "${YELLOW}⚠ No package manager found - install tools manually${NC}"
+    echo "  ShellCheck: https://github.com/koalaman/shellcheck#installing"
+    echo "  mypy: pip install mypy types-PyYAML"
 fi
 
 # Install git hooks

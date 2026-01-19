@@ -246,25 +246,35 @@ green "✓ Found requirements.yaml"
 # Parse requirements.yaml using Python
 yellow 'Parsing requirements...'
 
-# Extract metadata and user_inputs using Python
-PARSED_DATA=$(python3 <<PYTHON_EOF
+# Extract metadata and user_inputs using Python with help_text
+PARSED_DATA=$(python3 - "$REQUIREMENTS_FILE" <<'PYTHON_EOF'
 import yaml
 import sys
+import base64
 
 try:
-    with open('$REQUIREMENTS_FILE', 'r') as f:
+    with open(sys.argv[1], 'r') as f:
         data = yaml.safe_load(f)
 
     # Print metadata
     print("METADATA_NAME=" + str(data['metadata']['name']))
     print("METADATA_DESC=" + str(data['metadata']['description']))
 
-    # Print each user_input as a structured line
+    # Print each user_input as a structured line with base64-encoded help_text
     for inp in data.get('user_inputs', []):
+        name = inp['name']
+        input_type = inp['type']
+        prompt = inp['prompt']
         default_val = str(inp.get('default', ''))
         condition = str(inp.get('condition', ''))
-        print("INPUT|" + inp['name'] + "|" + inp['type'] + "|" + inp['prompt'] +
-              "|" + default_val + "|" + condition)
+        help_text = inp.get('help_text', '')
+        example = inp.get('example', '')
+
+        # Base64 encode help_text to preserve multiline content
+        help_b64 = base64.b64encode(help_text.encode('utf-8')).decode('utf-8') if help_text else ''
+
+        # Use string concatenation instead of f-strings for better compatibility
+        print("INPUT|" + name + "|" + input_type + "|" + prompt + "|" + default_val + "|" + condition + "|" + help_b64 + "|" + example)
 
 except Exception as e:
     print("ERROR|" + str(e), file=sys.stderr)
@@ -272,25 +282,7 @@ except Exception as e:
 PYTHON_EOF
 )
 
-# shellcheck disable=SC2251
-if ! python3 <<'PYTHON_EOF'
-import sys, yaml
-try:
-    with open(sys.argv[1]) as f:
-        requirements = yaml.safe_load(f)
-    metadata = requirements.get('metadata', {})
-    print("METADATA_NAME=" + str(metadata.get('name', '')))
-    print("METADATA_DESC=" + str(metadata.get('description', '')))
-    for inp in requirements.get('user_inputs', []):
-        default_val = str(inp.get('default', ''))
-        condition = str(inp.get('condition', ''))
-        print("INPUT|" + inp['name'] + "|" + inp['type'] + "|" + inp['prompt'] +
-              "|" + default_val + "|" + condition)
-except Exception as e:
-    print("ERROR|" + str(e), file=sys.stderr)
-    sys.exit(1)
-PYTHON_EOF
-"$REQUIREMENTS_FILE" 2>/dev/null; then
+if [ $? -ne 0 ]; then
     red "Error parsing requirements.yaml"
     exit 1
 fi
@@ -331,140 +323,111 @@ yellow 'Collecting installation parameters...'
 # Process each input from requirements.yaml
 declare -A USER_VALUES
 
-# Zabbix API URL
-INPUT_NAME="zabbix_api_url"
-ENV_VAR="ZABBIX_API_URL"
-if [ -n "${!ENV_VAR}" ]; then
-    USER_VALUES[$INPUT_NAME]="${!ENV_VAR}"
-    echo "  API URL: ${USER_VALUES[$INPUT_NAME]} (from environment)"
-else
-    if [ "$NON_INTERACTIVE" = false ]; then
-        if ! USER_VALUES[$INPUT_NAME]=$(whiptail --inputbox "Enter Zabbix API URL:" 10 70 "http://localhost/zabbix" 3>&1 1>&2 2>&3); then
-            red "Installation cancelled"
-            exit 1
-        fi
-    else
-        USER_VALUES[$INPUT_NAME]="http://localhost/zabbix"
-    fi
-fi
+# Environment variable name mapping
+declare -A ENV_VAR_MAP
+ENV_VAR_MAP[zabbix_api_url]="ZABBIX_API_URL"
+ENV_VAR_MAP[zabbix_api_token]="ZABBIX_API_TOKEN"
+ENV_VAR_MAP[olt_password]="OLT_PASSWORD"
+ENV_VAR_MAP[flush_template]="FLUSH_TEMPLATE"
+ENV_VAR_MAP[flush_hosts]="FLUSH_HOSTS"
+ENV_VAR_MAP[add_hosts]="ADD_HOSTS"
+ENV_VAR_MAP[olt_ip_addresses]="OLT_IPS"
 
-# Zabbix API Token
-INPUT_NAME="zabbix_api_token"
-ENV_VAR="ZABBIX_API_TOKEN"
-if [ -n "${!ENV_VAR}" ]; then
-    USER_VALUES[$INPUT_NAME]="${!ENV_VAR}"
-    echo "  API Token: ****** (from environment)"
-else
-    if [ "$NON_INTERACTIVE" = false ]; then
-        if ! USER_VALUES[$INPUT_NAME]=$(whiptail --passwordbox "Enter Zabbix API Token:" 10 70 3>&1 1>&2 2>&3); then
-            red "Installation cancelled"
-            exit 1
+# Process each input from parsed requirements
+while IFS='|' read -r prefix input_name input_type prompt default_val condition help_b64 example; do
+    # Skip non-INPUT lines and empty names
+    [ "$prefix" != "INPUT" ] && continue
+    [ -z "$input_name" ] && continue
+
+    # Check if this input has a condition
+    if [ -n "$condition" ]; then
+        # Simple condition evaluation (e.g., "add_hosts == true")
+        cond_var=$(echo "$condition" | awk '{print $1}')
+        cond_op=$(echo "$condition" | awk '{print $2}')
+        cond_val=$(echo "$condition" | awk '{print $3}')
+
+        # Skip if condition not met
+        if [ "$cond_op" = "==" ] && [ "${USER_VALUES[$cond_var]}" != "$cond_val" ]; then
+            continue
         fi
     fi
-fi
 
-# OLT Password
-INPUT_NAME="olt_password"
-ENV_VAR="OLT_PASSWORD"
-if [ -n "${!ENV_VAR}" ]; then
-    USER_VALUES[$INPUT_NAME]="${!ENV_VAR}"
-    echo "  OLT Password: ****** (from environment)"
-else
-    if [ "$NON_INTERACTIVE" = false ]; then
-        if ! USER_VALUES[$INPUT_NAME]=$(whiptail --passwordbox "Enter OLT SSH password:" 10 70 3>&1 1>&2 2>&3); then
-            red "Installation cancelled"
-            exit 1
-        fi
-    else
-        USER_VALUES[$INPUT_NAME]="password"
-    fi
-fi
+    # Get environment variable name
+    ENV_VAR="${ENV_VAR_MAP[$input_name]}"
 
-# Flush Template
-INPUT_NAME="flush_template"
-ENV_VAR="FLUSH_TEMPLATE"
-if [ -n "${!ENV_VAR}" ]; then
-    if [ "${!ENV_VAR}" = "true" ] || [ "${!ENV_VAR}" = "yes" ]; then
-        USER_VALUES[$INPUT_NAME]="true"
-        echo "  Flush template: yes (from environment)"
+    # Check environment variable first
+    if [ -n "$ENV_VAR" ] && [ -n "${!ENV_VAR}" ]; then
+        # Value from environment
+        case "$input_type" in
+            boolean)
+                if [ "${!ENV_VAR}" = "true" ] || [ "${!ENV_VAR}" = "yes" ]; then
+                    USER_VALUES[$input_name]="true"
+                    echo "  ${prompt}: yes (from environment)"
+                else
+                    USER_VALUES[$input_name]="false"
+                    echo "  ${prompt}: no (from environment)"
+                fi
+                ;;
+            secret)
+                USER_VALUES[$input_name]="${!ENV_VAR}"
+                echo "  ${prompt}: ****** (from environment)"
+                ;;
+            *)
+                USER_VALUES[$input_name]="${!ENV_VAR}"
+                echo "  ${prompt}: ${USER_VALUES[$input_name]} (from environment)"
+                ;;
+        esac
     else
-        USER_VALUES[$INPUT_NAME]="false"
-        echo "  Flush template: no (from environment)"
-    fi
-else
-    if [ "$NON_INTERACTIVE" = false ]; then
-        if whiptail --yesno "Remove existing template before installing?" 10 70 3>&1 1>&2 2>&3; then
-            USER_VALUES[$INPUT_NAME]="true"
-        else
-            USER_VALUES[$INPUT_NAME]="false"
-        fi
-    else
-        USER_VALUES[$INPUT_NAME]="false"
-    fi
-fi
-
-# Flush Hosts
-INPUT_NAME="flush_hosts"
-ENV_VAR="FLUSH_HOSTS"
-if [ -n "${!ENV_VAR}" ]; then
-    if [ "${!ENV_VAR}" = "true" ] || [ "${!ENV_VAR}" = "yes" ]; then
-        USER_VALUES[$INPUT_NAME]="true"
-        echo "  Flush hosts: yes (from environment)"
-    else
-        USER_VALUES[$INPUT_NAME]="false"
-        echo "  Flush hosts: no (from environment)"
-    fi
-else
-    if [ "$NON_INTERACTIVE" = false ]; then
-        if whiptail --yesno "Remove existing hosts before installing?\n\nWARNING: This will delete ALL hosts using this template!" 12 70 3>&1 1>&2 2>&3; then
-            USER_VALUES[$INPUT_NAME]="true"
-        else
-            USER_VALUES[$INPUT_NAME]="false"
-        fi
-    else
-        USER_VALUES[$INPUT_NAME]="false"
-    fi
-fi
-
-# Add Hosts
-INPUT_NAME="add_hosts"
-ENV_VAR="ADD_HOSTS"
-if [ -n "${!ENV_VAR}" ]; then
-    if [ "${!ENV_VAR}" = "true" ] || [ "${!ENV_VAR}" = "yes" ]; then
-        USER_VALUES[$INPUT_NAME]="true"
-        echo "  Add hosts: yes (from environment)"
-    else
-        USER_VALUES[$INPUT_NAME]="false"
-        echo "  Add hosts: no (from environment)"
-    fi
-else
-    if [ "$NON_INTERACTIVE" = false ]; then
-        if whiptail --yesno "Add OLT hosts now?" 10 70 3>&1 1>&2 2>&3; then
-            USER_VALUES[$INPUT_NAME]="true"
-        else
-            USER_VALUES[$INPUT_NAME]="false"
-        fi
-    else
-        USER_VALUES[$INPUT_NAME]="false"
-    fi
-fi
-
-# OLT IP Addresses (conditional on add_hosts)
-if [ "${USER_VALUES[add_hosts]}" = "true" ]; then
-    INPUT_NAME="olt_ip_addresses"
-    ENV_VAR="OLT_IPS"
-    if [ -n "${!ENV_VAR}" ]; then
-        USER_VALUES[$INPUT_NAME]="${!ENV_VAR}"
-        echo "  OLT IPs: ${USER_VALUES[$INPUT_NAME]} (from environment)"
-    else
+        # Interactive prompt
         if [ "$NON_INTERACTIVE" = false ]; then
-            if ! USER_VALUES[$INPUT_NAME]=$(whiptail --inputbox "Enter OLT IP addresses (comma-separated):" 10 70 3>&1 1>&2 2>&3); then
-                red "Installation cancelled"
-                exit 1
+            # Decode and show help text if present
+            if [ -n "$help_b64" ]; then
+                help_text=$(echo "$help_b64" | base64 -d 2>/dev/null || echo "")
+                if [ -n "$help_text" ]; then
+                    whiptail --title "Help: $prompt" --msgbox "$help_text" 20 75
+                fi
             fi
+
+            # Show input dialog based on type
+            case "$input_type" in
+                secret)
+                    if ! USER_VALUES[$input_name]=$(whiptail --passwordbox "$prompt" 10 70 3>&1 1>&2 2>&3); then
+                        red "Installation cancelled"
+                        exit 1
+                    fi
+                    ;;
+                boolean)
+                    if whiptail --yesno "$prompt" 10 70 3>&1 1>&2 2>&3; then
+                        USER_VALUES[$input_name]="true"
+                    else
+                        USER_VALUES[$input_name]="false"
+                    fi
+                    ;;
+                *)
+                    # url, text, list - all use inputbox
+                    if ! USER_VALUES[$input_name]=$(whiptail --inputbox "$prompt" 10 70 "$default_val" 3>&1 1>&2 2>&3); then
+                        red "Installation cancelled"
+                        exit 1
+                    fi
+                    ;;
+            esac
+        else
+            # Non-interactive - use defaults
+            case "$input_type" in
+                boolean)
+                    if [ "$default_val" = "true" ]; then
+                        USER_VALUES[$input_name]="true"
+                    else
+                        USER_VALUES[$input_name]="false"
+                    fi
+                    ;;
+                *)
+                    USER_VALUES[$input_name]="$default_val"
+                    ;;
+            esac
         fi
     fi
-fi
+done < <(echo "$PARSED_DATA" | grep "^INPUT|")
 
 echo ""
 green "✓ Configuration collected"

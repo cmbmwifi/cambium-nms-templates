@@ -20,7 +20,7 @@ jobs:
         run: |
           pip install pyyaml
           sudo apt-get update
-          sudo apt-get install -y shellcheck yamllint
+          sudo apt-get install -y shellcheck yamllint python3-mypy python3-typeshed
 
       - name: Validate Python syntax
         run: |
@@ -42,3 +42,7 @@ jobs:
           yamllint templates/
           python3 -c "import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/template.yaml'))"
           python3 -c "import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/requirements.yaml'))"
+
+      - name: Type checking
+        run: |
+          mypy --ignore-missing-imports --check-untyped-defs tests/integration/installer/test_installer_menu.py

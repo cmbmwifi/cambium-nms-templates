@@ -62,9 +62,10 @@ The development environment includes pre-commit and pre-push hooks that ensure c
 
 ### Pre-commit Hook
 Runs automatically when you commit, checking:
-- Python syntax and linting (ruff)
+- Python syntax validation
+- Python type checking (mypy)
 - Bash syntax and linting (shellcheck)
-- YAML validation (yamllint)
+- YAML validation
 
 This catches issues **before** they're committed, saving you from having to fix them later.
 

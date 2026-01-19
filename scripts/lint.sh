@@ -50,6 +50,16 @@ fi
 # 4. Validate YAML files
 run_check "YAML validation" "python3 -c \"import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/template.yaml')); yaml.safe_load(open('templates/zabbix/cambium-fiber/requirements.yaml'))\""
 
+# 5. Type checking with mypy (if installed)
+if command -v mypy &> /dev/null; then
+    run_check "Type checking" "mypy --ignore-missing-imports --check-untyped-defs tests/integration/installer/test_installer_menu.py"
+elif python3 -m mypy --version &> /dev/null; then
+    run_check "Type checking" "python3 -m mypy --ignore-missing-imports --check-untyped-defs tests/integration/installer/test_installer_menu.py"
+else
+    echo -e "${YELLOW}⚠ mypy not installed - skipping type checking (install with: pip install mypy)${NC}"
+    echo ""
+fi
+
 # Exit with failure if any check failed
 if [ $CHECKS_FAILED -eq 1 ]; then
     exit 1

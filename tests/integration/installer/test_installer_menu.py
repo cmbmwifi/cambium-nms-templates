@@ -4,6 +4,7 @@ Installer menu system tests (NMS-agnostic)
 Tests configuration collection without actual installation
 """
 
+import base64
 import subprocess
 import sys
 import time
@@ -160,19 +161,23 @@ class InstallerMenuTest:
         generator = value_generators.get(input_type, lambda: inp.get('default', 'test_value'))
         return generator()
 
-    def generate_env_vars_from_requirements(self, include_optional=True):
+    def generate_env_vars_from_requirements(self, include_optional: bool = True) -> Dict[str, str]:
         """Generate environment variables dict from requirements.yaml"""
         if not self.requirements:
             raise ValueError("Requirements not loaded. Call load_requirements() first.")
 
-        env_vars = {
+        env_vars: Dict[str, str] = {
             'NMS_PLATFORM': 'zabbix',
             'PRODUCT_TEMPLATE': 'cambium-fiber',
         }
 
         for inp in self.requirements.get('user_inputs', []):
-            env_name = inp['name'].upper()
+            # Use ENV_VAR_MAP to get correct environment variable name
+            name: str = str(inp['name'])
+            env_name: str = self.ENV_VAR_MAP.get(name, name.upper())
             env_vars[env_name] = self._generate_test_value_for_input(inp, include_optional)
+
+        return env_vars
 
         return env_vars
 
@@ -253,7 +258,8 @@ class InstallerMenuTest:
                 continue
 
             name = inp['name']
-            env_name = name.upper()
+            # Use ENV_VAR_MAP to get correct environment variable name
+            env_name = self.ENV_VAR_MAP.get(name, name.upper())
             input_type = inp['type']
 
             if input_type == 'secret':
@@ -309,9 +315,10 @@ class InstallerMenuTest:
             if not is_required:
                 continue
 
-            name = inp['name']
-            env_name = name.upper()
-            input_type = inp['type']
+            name: str = inp['name']
+            # Use ENV_VAR_MAP to get correct environment variable name
+            env_name: str = self.ENV_VAR_MAP.get(name, name.upper())
+            input_type: str = inp['type']
 
             if input_type == 'url':
                 env_vars[env_name] = 'http://localhost/zabbix'
@@ -470,6 +477,178 @@ class InstallerMenuTest:
 
         return self._record_test_result(all_passed, "Conditional inputs work")
 
+    def test_parser_output_format(self):
+        """Test that Python parser outputs correct format and structure"""
+        print(f"\n{Colors.YELLOW}TEST: Parser output format validation (regression prevention){Colors.NC}")
+
+        self.load_requirements()
+        if not self._ensure_requirements_loaded():
+            return False
+
+        assert self.requirements is not None
+
+        # Run the Python parser directly
+        python_script = '''
+import yaml
+import sys
+import base64
+
+try:
+    with open(sys.argv[1], "r") as f:
+        data = yaml.safe_load(f)
+
+    print("METADATA_NAME=" + str(data["metadata"]["name"]))
+    print("METADATA_DESC=" + str(data["metadata"]["description"]))
+
+    for inp in data.get("user_inputs", []):
+        name = inp["name"]
+        input_type = inp["type"]
+        prompt = inp["prompt"]
+        default_val = str(inp.get("default", ""))
+        condition = str(inp.get("condition", ""))
+        help_text = inp.get("help_text", "")
+        example = inp.get("example", "")
+
+        help_b64 = base64.b64encode(help_text.encode("utf-8")).decode("utf-8") if help_text else ""
+
+        print("INPUT|" + name + "|" + input_type + "|" + prompt + "|" + default_val + "|" + condition + "|" + help_b64 + "|" + example)
+
+except Exception as e:
+    print("ERROR|" + str(e), file=sys.stderr)
+    sys.exit(1)
+'''
+
+        cmd = [
+            "docker", "exec", self.container_name,
+            "python3", "-c", python_script,
+            "/root/cambium-nms-templates/templates/zabbix/cambium-fiber/requirements.yaml"
+        ]
+
+        exit_code, output = self.run_command(cmd)
+
+        if exit_code != 0:
+            print(f"  {Colors.RED}✗ Parser execution failed{Colors.NC}")
+            print(output)
+            return self._record_test_result(False, "Parser output format validation")
+
+        all_passed = True
+        lines = output.strip().split('\n')
+
+        # Validate metadata lines
+        metadata_lines = [line for line in lines if line.startswith('METADATA_')]
+        if len(metadata_lines) >= 2:
+            print(f"  {Colors.GREEN}✓ Metadata lines present (2){Colors.NC}")
+        else:
+            print(f"  {Colors.RED}✗ Metadata lines missing or incomplete{Colors.NC}")
+            all_passed = False
+
+        # Validate INPUT lines
+        input_lines = [line for line in lines if line.startswith('INPUT|')]
+        expected_input_count = len(self.requirements.get('user_inputs', []))
+
+        if len(input_lines) == expected_input_count:
+            print(f"  {Colors.GREEN}✓ Correct number of INPUT lines ({expected_input_count}){Colors.NC}")
+        else:
+            print(f"  {Colors.RED}✗ Expected {expected_input_count} INPUT lines, got {len(input_lines)}{Colors.NC}")
+            all_passed = False
+
+        # Validate each INPUT line structure
+        expected_field_count = 8  # INPUT|name|type|prompt|default|condition|help_b64|example
+        for i, line in enumerate(input_lines):
+            fields = line.split('|')
+            if len(fields) == expected_field_count:
+                if i == 0:  # Only print once
+                    print(f"  {Colors.GREEN}✓ All INPUT lines have {expected_field_count} fields{Colors.NC}")
+            else:
+                print(f"  {Colors.RED}✗ INPUT line {i+1} has {len(fields)} fields, expected {expected_field_count}{Colors.NC}")
+                all_passed = False
+                break
+
+        # Validate base64 encoding/decoding of help_text
+        help_text_validated = False
+        help_text_validation_passed = True
+        for inp in self.requirements.get('user_inputs', []):
+            name = inp['name']
+            original_help = inp.get('help_text', '')
+
+            # Find the corresponding INPUT line
+            matching_line = None
+            for line in input_lines:
+                if line.split('|')[1] == name:
+                    matching_line = line
+                    break
+
+            if matching_line:
+                fields = matching_line.split('|')
+                help_b64 = fields[6]  # 7th field (0-indexed 6)
+
+                if original_help:
+                    try:
+                        decoded_help = base64.b64decode(help_b64).decode('utf-8')
+                        if decoded_help == original_help:
+                            if not help_text_validated:  # Only print once
+                                print(f"  {Colors.GREEN}✓ Base64 help_text encoding/decoding works{Colors.NC}")
+                                help_text_validated = True
+                        else:
+                            print(f"  {Colors.RED}✗ Help text mismatch for {name}{Colors.NC}")
+                            all_passed = False
+                            help_text_validation_passed = False
+                    except Exception as e:
+                        print(f"  {Colors.RED}✗ Base64 decode failed for {name}: {e}{Colors.NC}")
+                        all_passed = False
+                        help_text_validation_passed = False
+                elif help_b64 != '':
+                    print(f"  {Colors.RED}✗ Expected empty help_b64 for {name}, got non-empty{Colors.NC}")
+                    all_passed = False
+                    help_text_validation_passed = False
+
+        # Validate all expected input names are present
+        parsed_names = [line.split('|')[1] for line in input_lines]
+        expected_names = [inp['name'] for inp in self.requirements.get('user_inputs', [])]
+
+        missing_names = set(expected_names) - set(parsed_names)
+        extra_names = set(parsed_names) - set(expected_names)
+
+        if not missing_names and not extra_names:
+            print(f"  {Colors.GREEN}✓ All input names match requirements.yaml{Colors.NC}")
+        else:
+            if missing_names:
+                print(f"  {Colors.RED}✗ Missing inputs: {missing_names}{Colors.NC}")
+            if extra_names:
+                print(f"  {Colors.RED}✗ Extra inputs: {extra_names}{Colors.NC}")
+            all_passed = False
+
+        # Validate field order matches installer expectations
+        # The installer reads: prefix, input_name, input_type, prompt, default_val, condition, help_b64, example
+        if len(input_lines) > 0:
+            first_input = self.requirements.get('user_inputs', [])[0]
+            first_line = input_lines[0]
+            fields = first_line.split('|')
+
+            field_validation = [
+                (fields[0] == 'INPUT', 'Prefix is INPUT'),
+                (fields[1] == first_input['name'], 'Field 1: name'),
+                (fields[2] == first_input['type'], 'Field 2: type'),
+                (fields[3] == first_input['prompt'], 'Field 3: prompt'),
+            ]
+
+            all_fields_correct = all(check[0] for check in field_validation)
+            if all_fields_correct:
+                print(f"  {Colors.GREEN}✓ Field order matches installer expectations{Colors.NC}")
+            else:
+                print(f"  {Colors.RED}✗ Field order mismatch{Colors.NC}")
+                for check, desc in field_validation:
+                    if not check:
+                        print(f"    - {desc} validation failed")
+                all_passed = False
+
+        if not all_passed:
+            print("\nParser output (first 10 lines):")
+            for line in lines[:10]:
+                print(f"  {line}")
+
+        return self._record_test_result(all_passed, "Parser output format validation")
+
     def test_platform_selection(self):
         """Test NMS platform selection via environment variable"""
         print(f"\n{Colors.YELLOW}TEST: Platform selection (requirements-driven){Colors.NC}")
@@ -525,6 +704,7 @@ class InstallerMenuTest:
             self.test_non_interactive_minimal_vars()
             self.test_requirements_parsing()
             self.test_conditional_input()
+            self.test_parser_output_format()
             self.test_platform_selection()
 
         finally:
