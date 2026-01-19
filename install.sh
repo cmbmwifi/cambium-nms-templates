@@ -67,7 +67,7 @@ EOF
 fi
 
 # Check for required Python modules
-echo "$(yellow 'Checking dependencies...')"
+yellow 'Checking dependencies...'
 
 # Check for PyYAML
 if ! python3 -c "import yaml" 2>/dev/null; then
@@ -133,7 +133,7 @@ trap cleanup_temp_files EXIT
 # Determine base path based on mode
 if [ "$MODE" = "local" ]; then
     BASE_PATH="$HOME/cambium-nms-templates"
-    echo "$(yellow 'Development mode: Using local files')"
+    yellow 'Development mode: Using local files'
     echo "Base path: $BASE_PATH"
 
     # Verify local directory exists
@@ -145,7 +145,7 @@ if [ "$MODE" = "local" ]; then
 else
     # GitHub mode - create temporary directory
     BASE_PATH=$(mktemp -d -t cambium-nms-XXXXXX)
-    echo "$(yellow 'GitHub mode: Downloading files from repository')"
+    yellow 'GitHub mode: Downloading files from repository'
     echo "Temporary directory: $BASE_PATH"
 fi
 
@@ -164,7 +164,7 @@ fi
 NON_INTERACTIVE=false
 if [ -n "$ZABBIX_API_URL" ] && [ -n "$ZABBIX_API_TOKEN" ]; then
     NON_INTERACTIVE=true
-    echo "$(green 'Non-interactive mode detected')"
+    green 'Non-interactive mode detected')"
 fi
 
 # NMS Platform Selection Menu (interactive mode only)
@@ -175,7 +175,7 @@ if [ -z "$NMS_PLATFORM" ]; then
             "zabbix" "Zabbix Monitoring Platform" \
             3>&1 1>&2 2>&3)
 
-        if [ $? -ne 0 ] || [ -z "$NMS_PLATFORM" ]; then
+        if ! [ -n "$NMS_PLATFORM" ]; then
             red "Installation cancelled"
             exit 1
         fi
@@ -184,7 +184,7 @@ if [ -z "$NMS_PLATFORM" ]; then
         NMS_PLATFORM="zabbix"
     fi
 else
-    echo "$(green "NMS Platform: $NMS_PLATFORM (from environment)")"
+    green "NMS Platform: $NMS_PLATFORM (from environment)"
 fi
 
 # Product Selection Menu (interactive mode only)
@@ -195,7 +195,7 @@ if [ -z "$PRODUCT_TEMPLATE" ]; then
             "cambium-fiber" "Cambium Fiber OLT by SSH" \
             3>&1 1>&2 2>&3)
 
-        if [ $? -ne 0 ] || [ -z "$PRODUCT_TEMPLATE" ]; then
+        if ! [ -n "$PRODUCT_TEMPLATE" ]; then
             red "Installation cancelled"
             exit 1
         fi
@@ -204,7 +204,7 @@ if [ -z "$PRODUCT_TEMPLATE" ]; then
         PRODUCT_TEMPLATE="cambium-fiber"
     fi
 else
-    echo "$(green "Product Template: $PRODUCT_TEMPLATE (from environment)")"
+    green "Product Template: $PRODUCT_TEMPLATE (from environment)"
 fi
 
 # Update template path based on selections
@@ -215,7 +215,7 @@ SCRIPT_FILE="$TEMPLATE_PATH/cambium_olt_ssh_json.py"
 
 # Download required files in GitHub mode
 if [ "$MODE" = "github" ]; then
-    echo "$(yellow 'Downloading required files...')"
+    yellow 'Downloading required files...'
 
     # Download requirements.yaml
     if ! download_github_file "templates/$NMS_PLATFORM/$PRODUCT_TEMPLATE/requirements.yaml" "$REQUIREMENTS_FILE"; then
@@ -244,7 +244,7 @@ fi
 green "✓ Found requirements.yaml"
 
 # Parse requirements.yaml using Python
-echo "$(yellow 'Parsing requirements...')"
+yellow 'Parsing requirements...')"
 
 # Extract metadata and user_inputs using Python
 PARSED_DATA=$(python3 <<PYTHON_EOF
@@ -272,7 +272,24 @@ except Exception as e:
 PYTHON_EOF
 )
 
-if [ $? -ne 0 ]; then
+if ! python3 <<'PYTHON_EOF'
+import sys, yaml
+try:
+    with open(sys.argv[1]) as f:
+        requirements = yaml.safe_load(f)
+    metadata = requirements.get('metadata', {})
+    print("METADATA_NAME=" + str(metadata.get('name', '')))
+    print("METADATA_DESC=" + str(metadata.get('description', '')))
+    for inp in requirements.get('user_inputs', []):
+        default_val = str(inp.get('default', ''))
+        condition = str(inp.get('condition', ''))
+        print("INPUT|" + inp['name'] + "|" + inp['type'] + "|" + inp['prompt'] +
+              "|" + default_val + "|" + condition)
+except Exception as e:
+    print("ERROR|" + str(e), file=sys.stderr)
+    sys.exit(1)
+PYTHON_EOF
+"$REQUIREMENTS_FILE" 2>/dev/null; then
     red "Error parsing requirements.yaml"
     exit 1
 fi
@@ -285,7 +302,7 @@ TEMPLATE_DESC=$(echo "$PARSED_DATA" | grep "^METADATA_DESC=" | cut -d'=' -f2-)
 NON_INTERACTIVE=false
 if [ -n "$ZABBIX_API_URL" ] && [ -n "$ZABBIX_API_TOKEN" ]; then
     NON_INTERACTIVE=true
-    echo "$(green 'Non-interactive mode detected')"
+    green 'Non-interactive mode detected')"
 fi
 
 # Show welcome screen (only in interactive mode)
@@ -308,7 +325,7 @@ Press OK to continue..." 18 70
 fi
 
 # Collect user inputs (check env vars first, then prompt)
-echo "$(yellow 'Collecting installation parameters...')"
+yellow 'Collecting installation parameters...'
 
 # Process each input from requirements.yaml
 declare -A USER_VALUES
@@ -321,8 +338,7 @@ if [ -n "${!ENV_VAR}" ]; then
     echo "  API URL: ${USER_VALUES[$INPUT_NAME]} (from environment)"
 else
     if [ "$NON_INTERACTIVE" = false ]; then
-        USER_VALUES[$INPUT_NAME]=$(whiptail --inputbox "Enter Zabbix API URL:" 10 70 "http://localhost/zabbix" 3>&1 1>&2 2>&3)
-        if [ $? -ne 0 ]; then
+        if ! USER_VALUES[$INPUT_NAME]=$(whiptail --inputbox "Enter Zabbix API URL:" 10 70 "http://localhost/zabbix" 3>&1 1>&2 2>&3); then
             red "Installation cancelled"
             exit 1
         fi
@@ -339,8 +355,7 @@ if [ -n "${!ENV_VAR}" ]; then
     echo "  API Token: ****** (from environment)"
 else
     if [ "$NON_INTERACTIVE" = false ]; then
-        USER_VALUES[$INPUT_NAME]=$(whiptail --passwordbox "Enter Zabbix API Token:" 10 70 3>&1 1>&2 2>&3)
-        if [ $? -ne 0 ]; then
+        if ! USER_VALUES[$INPUT_NAME]=$(whiptail --passwordbox "Enter Zabbix API Token:" 10 70 3>&1 1>&2 2>&3); then
             red "Installation cancelled"
             exit 1
         fi
@@ -355,8 +370,7 @@ if [ -n "${!ENV_VAR}" ]; then
     echo "  OLT Password: ****** (from environment)"
 else
     if [ "$NON_INTERACTIVE" = false ]; then
-        USER_VALUES[$INPUT_NAME]=$(whiptail --passwordbox "Enter OLT admin password:" 10 70 3>&1 1>&2 2>&3)
-        if [ $? -ne 0 ]; then
+        if ! USER_VALUES[$INPUT_NAME]=$(whiptail --passwordbox "Enter OLT SSH password:" 10 70 3>&1 1>&2 2>&3); then
             red "Installation cancelled"
             exit 1
         fi
@@ -443,8 +457,7 @@ if [ "${USER_VALUES[add_hosts]}" = "true" ]; then
         echo "  OLT IPs: ${USER_VALUES[$INPUT_NAME]} (from environment)"
     else
         if [ "$NON_INTERACTIVE" = false ]; then
-            USER_VALUES[$INPUT_NAME]=$(whiptail --inputbox "Enter OLT IP addresses (comma-separated):" 10 70 3>&1 1>&2 2>&3)
-            if [ $? -ne 0 ]; then
+            if ! USER_VALUES[$INPUT_NAME]=$(whiptail --inputbox "Enter OLT IP addresses (comma-separated):" 10 70 3>&1 1>&2 2>&3); then
                 red "Installation cancelled"
                 exit 1
             fi
@@ -514,7 +527,7 @@ zabbix_api_call() {
 }
 
 # Step 1: Validate API connection and detect version
-echo "$(yellow '▶ Step 1: Validating Zabbix API connection...')"
+yellow '▶ Step 1: Validating Zabbix API connection...')"
 API_VERSION_RESPONSE=$(curl -s -X POST "${USER_VALUES[zabbix_api_url]}/api_jsonrpc.php" \
     -H "Content-Type: application/json" \
     -d '{
@@ -578,7 +591,7 @@ green "  ✓ API authentication successful"
 
 # Step 2: Flush existing template if requested
 if [ "${USER_VALUES[flush_template]}" = "true" ]; then
-    echo "$(yellow '▶ Step 2: Removing existing template...')"
+    yellow '▶ Step 2: Removing existing template...'
 
     # Get template ID
     TEMPLATE_RESPONSE=$(zabbix_api_call "template.get" '{
@@ -604,7 +617,7 @@ fi
 
 # Step 3: Flush existing hosts if requested
 if [ "${USER_VALUES[flush_hosts]}" = "true" ]; then
-    echo "$(yellow '▶ Step 3: Removing existing hosts...')"
+    yellow '▶ Step 3: Removing existing hosts...'
 
     # Get template ID first
     TEMPLATE_RESPONSE=$(zabbix_api_call "template.get" '{
@@ -656,7 +669,7 @@ if [ "${USER_VALUES[flush_hosts]}" = "true" ]; then
 fi
 
 # Step 4: Import template via API
-echo "$(yellow '▶ Step 4: Importing template...')"
+yellow '▶ Step 4: Importing template...')"
 
 # Ensure template group exists
 echo "  Checking for template group..."
@@ -690,7 +703,7 @@ if [ ! -f "$TEMPLATE_FILE" ]; then
 fi
 
 # Prepare template content (escape for JSON)
-TEMPLATE_CONTENT=$(cat "$TEMPLATE_FILE" | python3 -c "import sys, json; print(json.dumps(sys.stdin.read()))")
+TEMPLATE_CONTENT=$(python3 -c "import sys, json; print(json.dumps(sys.stdin.read()))" < "$TEMPLATE_FILE")
 
 # Import template with appropriate rules
 IMPORT_RESPONSE=$(zabbix_api_call "configuration.import" "{
@@ -733,7 +746,7 @@ fi
 green "  ✓ Template imported successfully"
 
 # Step 5: Deploy external script
-echo "$(yellow '▶ Step 5: Deploying external script...')"
+yellow '▶ Step 5: Deploying external script...'
 
 # Script file path set earlier during download/setup
 if [ ! -f "$SCRIPT_FILE" ]; then
@@ -757,15 +770,13 @@ if [ ! -w "$EXTERNALSCRIPTS_DIR" ]; then
 fi
 
 # Copy script to ExternalScripts directory
-cp "$SCRIPT_FILE" "$EXTERNALSCRIPTS_DIR/cambium_olt_ssh_json.py"
-if [ $? -ne 0 ]; then
+if ! cp "$SCRIPT_FILE" "$EXTERNALSCRIPTS_DIR/cambium_olt_ssh_json.py"; then
     red "✗ Error: Failed to copy script to $EXTERNALSCRIPTS_DIR"
     exit 1
 fi
 
 # Make script executable
-chmod +x "$EXTERNALSCRIPTS_DIR/cambium_olt_ssh_json.py"
-if [ $? -ne 0 ]; then
+if ! chmod +x "$EXTERNALSCRIPTS_DIR/cambium_olt_ssh_json.py"; then
     red "✗ Error: Failed to make script executable"
     exit 1
 fi
@@ -773,7 +784,7 @@ fi
 green "  ✓ Script deployed: cambium_olt_ssh_json.py"
 
 # Step 6: Configure {$OLT.PASS} macro on template
-echo "$(yellow '▶ Step 6: Configuring macros...')"
+yellow '▶ Step 6: Configuring macros...'
 
 # Get template ID
 TEMPLATE_RESPONSE=$(zabbix_api_call "template.get" '{
@@ -810,7 +821,7 @@ green "  ✓ Macro {\$OLT.PASS} configured"
 
 # Step 7: Create hosts if requested
 if [ "${USER_VALUES[add_hosts]}" = "true" ]; then
-    echo "$(yellow '▶ Step 7: Creating OLT hosts...')"
+    yellow '▶ Step 7: Creating OLT hosts...'
 
     # Ensure host group exists
     HOSTGROUP_RESPONSE=$(zabbix_api_call "hostgroup.get" '{
@@ -837,7 +848,7 @@ if [ "${USER_VALUES[add_hosts]}" = "true" ]; then
         echo "  Creating host for OLT: $ip"
 
         # Generate host name (use IP-based naming as fallback)
-        HOST_NAME="OLT-$(echo $ip | tr '.' '-')"
+        HOST_NAME="OLT-$(echo "$ip" | tr '.' '-')"
 
         # Create host
         HOST_RESPONSE=$(zabbix_api_call "host.create" "{
