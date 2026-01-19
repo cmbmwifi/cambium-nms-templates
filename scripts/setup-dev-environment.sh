@@ -24,7 +24,7 @@ fi
 
 # Install Python linting and testing tools
 echo "📦 Installing Python development tools..."
-if pip install ruff mypy types-requests types-PyYAML yamllint pytest pytest-xdist; then
+if pip install pyyaml ruff mypy types-requests types-PyYAML yamllint pytest pytest-xdist; then
     echo -e "${GREEN}✓ Python tools installed${NC}"
 else
     echo -e "${RED}✗ Failed to install Python tools${NC}"

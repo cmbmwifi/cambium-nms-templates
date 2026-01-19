@@ -175,7 +175,7 @@ if [ -z "$NMS_PLATFORM" ]; then
             "zabbix" "Zabbix Monitoring Platform" \
             3>&1 1>&2 2>&3)
 
-        if ! [ -n "$NMS_PLATFORM" ]; then
+        if [ -z "$NMS_PLATFORM" ]; then
             red "Installation cancelled"
             exit 1
         fi
@@ -195,7 +195,7 @@ if [ -z "$PRODUCT_TEMPLATE" ]; then
             "cambium-fiber" "Cambium Fiber OLT by SSH" \
             3>&1 1>&2 2>&3)
 
-        if ! [ -n "$PRODUCT_TEMPLATE" ]; then
+        if [ -z "$PRODUCT_TEMPLATE" ]; then
             red "Installation cancelled"
             exit 1
         fi
@@ -272,6 +272,7 @@ except Exception as e:
 PYTHON_EOF
 )
 
+# shellcheck disable=SC2251
 if ! python3 <<'PYTHON_EOF'
 import sys, yaml
 try:

@@ -49,4 +49,12 @@ permissions, networking, storage) is out of scope.
 **Cambium Networks Support (TAC) does not provide support for this project.**
 Use of this software is at your own discretion and risk.
 
+## Contributing
+
+Contributions are welcome! See [docs/contributing.md](docs/contributing.md) for development setup and guidelines.
+
+## License
+
+Apache License 2.0 - See [LICENSE](LICENSE) file for details.
+
 
