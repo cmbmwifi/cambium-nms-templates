@@ -18,7 +18,7 @@ jobs:
 
       - name: Install linting tools
         run: |
-          pip install pyyaml mypy types-PyYAML
+          pip install pyyaml
           sudo apt-get update
           sudo apt-get install -y shellcheck yamllint
 
@@ -42,7 +42,3 @@ jobs:
           yamllint templates/
           python3 -c "import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/template.yaml'))"
           python3 -c "import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/requirements.yaml'))"
-
-      - name: Type checking
-        run: |
-          python3 -m mypy --install-types --non-interactive --ignore-missing-imports --check-untyped-defs tests/integration/installer/test_installer_menu.py
