@@ -14,6 +14,8 @@ curl -o- https://raw.githubusercontent.com/cmbmwifi/cambium-nms-templates/refs/h
 
 The interactive menu will guide you through installing the template.
 
+**Note:** Requires `curl`. On Debian-based systems: `apt install curl`
+
 ## What's Available
 
 - **Cambium Fiber OLT** - Zabbix template with SSH monitoring
