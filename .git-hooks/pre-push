@@ -1,10 +1,10 @@
 #!/bin/bash
 # Pre-push hook for cambium-nms-templates
-# Runs all test suites before allowing push
+# Runs linting first (fast), then integration tests (slow)
 
 set -e
 
-echo "🧪 Running pre-push tests..."
+echo "🧪 Running pre-push checks..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -16,17 +16,33 @@ NC='\033[0m' # No Color
 # Get the root of the git repository
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
+# Step 1: Run linting checks (fast - catches issues early)
+echo ""
+echo -e "${BLUE}Step 1/2: Running linting checks...${NC}"
+echo ""
+
+if ! "$REPO_ROOT/scripts/lint.sh"; then
+    echo ""
+    echo -e "${RED}❌ Linting failed! Push blocked.${NC}"
+    echo -e "${YELLOW}Fix the issues above and try again${NC}"
+    echo -e "${YELLOW}Or use 'git push --no-verify' to bypass (not recommended)${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Linting passed!${NC}"
+
+# Step 2: Run integration tests (slow - only if linting passed)
+echo ""
+echo -e "${BLUE}Step 2/2: Running integration tests...${NC}"
+echo -e "${YELLOW}This may take several minutes (Docker containers will be started)${NC}"
+echo ""
+
 # Check if Docker is running (required for integration tests)
 if ! docker info > /dev/null 2>&1; then
     echo -e "${RED}✗ Docker is not running${NC}"
     echo -e "${YELLOW}Start Docker and try again, or use 'git push --no-verify' to skip tests${NC}"
     exit 1
 fi
-
-echo ""
-echo -e "${BLUE}Running all test suites...${NC}"
-echo -e "${YELLOW}This may take several minutes (Docker containers will be started)${NC}"
-echo ""
 
 # Run the master test script
 if "$REPO_ROOT/tests/run_all.sh"; then
