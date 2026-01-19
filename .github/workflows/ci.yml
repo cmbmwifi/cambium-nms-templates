@@ -45,4 +45,4 @@ jobs:
 
       - name: Type checking
         run: |
-          mypy --ignore-missing-imports --check-untyped-defs tests/integration/installer/test_installer_menu.py
+          python3 -m mypy --ignore-missing-imports --check-untyped-defs tests/integration/installer/test_installer_menu.py
