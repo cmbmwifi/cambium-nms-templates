@@ -164,7 +164,7 @@ fi
 NON_INTERACTIVE=false
 if [ -n "$ZABBIX_API_URL" ] && [ -n "$ZABBIX_API_TOKEN" ]; then
     NON_INTERACTIVE=true
-    green 'Non-interactive mode detected')"
+    green 'Non-interactive mode detected'
 fi
 
 # NMS Platform Selection Menu (interactive mode only)
@@ -244,7 +244,7 @@ fi
 green "✓ Found requirements.yaml"
 
 # Parse requirements.yaml using Python
-yellow 'Parsing requirements...')"
+yellow 'Parsing requirements...'
 
 # Extract metadata and user_inputs using Python
 PARSED_DATA=$(python3 <<PYTHON_EOF
@@ -302,7 +302,7 @@ TEMPLATE_DESC=$(echo "$PARSED_DATA" | grep "^METADATA_DESC=" | cut -d'=' -f2-)
 NON_INTERACTIVE=false
 if [ -n "$ZABBIX_API_URL" ] && [ -n "$ZABBIX_API_TOKEN" ]; then
     NON_INTERACTIVE=true
-    green 'Non-interactive mode detected')"
+    green 'Non-interactive mode detected'
 fi
 
 # Show welcome screen (only in interactive mode)
@@ -527,7 +527,7 @@ zabbix_api_call() {
 }
 
 # Step 1: Validate API connection and detect version
-yellow '▶ Step 1: Validating Zabbix API connection...')"
+yellow '▶ Step 1: Validating Zabbix API connection...'
 API_VERSION_RESPONSE=$(curl -s -X POST "${USER_VALUES[zabbix_api_url]}/api_jsonrpc.php" \
     -H "Content-Type: application/json" \
     -d '{
@@ -669,7 +669,7 @@ if [ "${USER_VALUES[flush_hosts]}" = "true" ]; then
 fi
 
 # Step 4: Import template via API
-yellow '▶ Step 4: Importing template...')"
+yellow '▶ Step 4: Importing template...'
 
 # Ensure template group exists
 echo "  Checking for template group..."
