@@ -122,18 +122,12 @@ class OLTTransport:
 
 
     def fetch_all(self, request: OLTRequest) -> Any:
-        try:
-            stdin_script = self._stdin_script()
-            self.debug.emit(f"olt: stdin_script={stdin_script!r}")
-            raw = self._run_sshpass(request.host, request.password, stdin_script)
-            json_text = self.output.to_json_text(raw)
-            data = json.loads(json_text)
-            return self._coerce_numbers(data)
-        except Exception as e:
-            # On any error (SSH failure, JSON parsing, etc.), return empty structure
-            # This allows the script to return default values (0) instead of error strings
-            self.debug.emit(f"olt: fetch failed: {e}, returning empty structure")
-            return {}
+        stdin_script = self._stdin_script()
+        self.debug.emit(f"olt: stdin_script={stdin_script!r}")
+        raw = self._run_sshpass(request.host, request.password, stdin_script)
+        json_text = self.output.to_json_text(raw)
+        data = json.loads(json_text)
+        return self._coerce_numbers(data)
 
     def _stdin_script(self) -> str:
         return "info\nshow all\nexit\n"
@@ -704,9 +698,8 @@ class OLTCLI:
             data = client.get_all(request, policy)
             selection = projector.project(data, args.paths)
         except Exception as e:
-            # On any error, return None which will be handled as 0
-            self.debug.emit(f"cli: error during fetch/project: {e}, returning None")
-            selection = None
+            self._emit_error(str(e))
+            return 1
         self._emit_value(selection)
         return 0
 

@@ -2,33 +2,82 @@
 
 ## Test Structure
 
-The project uses a hierarchical test organization:
+The project uses a hierarchical test organization with two main categories:
 
-**Top Level** - Run all tests across all test suites:
+### Unit Tests
+
+Fast, isolated tests that run without external dependencies:
+
+```bash
+# Run all unit tests
+./tests/unit/run_unit_tests.sh
+
+# Run specific test suite
+./tests/unit/cambium-olt-collector/run_cambium_olt_tests.sh
+```
+
+**What's tested:**
+- Error handling and propagation
+- Data parsing logic
+- CLI argument processing
+- Function-level behavior
+
+**Benefits:**
+- ⚡ Fast (milliseconds)
+- 🔒 No privileges required
+- 📦 No external dependencies
+- 💻 Run anywhere
+
+### Integration Tests
+
+Full system tests that verify everything works together:
+
+```bash
+# Run all integration tests
+./tests/integration/run_all_zabbix_tests.sh
+./tests/integration/run_installer_tests.sh
+
+# Run specific version test
+./tests/integration/zabbix/test_zabbix74.py
+```
+
+**What's tested:**
+- Installer functionality
+- Template import and validation
+- API interactions
+- Multi-version compatibility
+- Dependency installation
+
+**Requirements:**
+- 🐳 Docker
+- 🔑 Root/sudo (for some tests)
+- ⏱️ More time (minutes)
+
+### Top Level - Run Everything
+
 ```bash
 ./tests/run_all.sh
 ```
 
-**Suite Level** - Run all tests for a specific component:
-```bash
-./tests/integration/run_all_zabbix_tests.sh  # All Zabbix tests
-./tests/integration/run_installer_tests.sh   # All installer tests
-```
-
-**Individual Level** - Run specific test scripts:
-```bash
-./tests/integration/zabbix/test_zabbix70.py
-./tests/integration/zabbix/test_zabbix72.py
-./tests/integration/installer/test_installer_menu.py
-```
-
-This design supports both focused development (test what you're changing) and comprehensive validation (test everything before release).
+This runs:
+1. **Unit tests first** (fast feedback)
+2. **Mock OLT tests** (device simulation)
+3. **Installer tests** (configuration/dependencies)
+4. **Integration tests** (full Zabbix tests)
 
 ## Test Philosophy
 
-### Docker Isolation
+### Unit Tests: Fast Feedback
 
-All tests run in isolated Docker environments to ensure reproducibility across different development machines and CI/CD systems.
+Unit tests provide immediate feedback during development:
+- Test individual functions in isolation
+- Mock external dependencies
+- Verify error handling
+- Validate data transformations
+
+### Integration Tests: Docker Isolation
+
+All integration tests run in isolated Docker environments to ensure reproducibility across different development machines and CI/CD systems.
 
 ### Hierarchical Organization
 

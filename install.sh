@@ -9,6 +9,34 @@ green() { echo -e "\033[0;32m$1\033[0m"; }
 yellow() { echo -e "\033[0;33m$1\033[0m"; }
 red() { echo -e "\033[0;31m$1\033[0m"; }
 
+# Check for root privileges early
+check_root_privileges() {
+    # Skip check for validate-config mode
+    if [[ " $* " =~ " --validate-config " ]]; then
+        return 0
+    fi
+
+    if [ "$EUID" -ne 0 ]; then
+        red "Error: This installer must be run as root"
+        echo ""
+        echo "To become root and run this installer:"
+        echo ""
+        echo "  Option 1: Switch to root user first"
+        echo "    sudo su -"
+        echo "    # Then run the installer"
+        echo ""
+        echo "  Option 2: Run with sudo"
+        echo "    sudo $0 $*"
+        echo ""
+        echo "  Note: In Proxmox LXC containers, you're typically already root."
+        echo ""
+        exit 1
+    fi
+}
+
+# Check privileges before doing anything else
+check_root_privileges "$@"
+
 # Parse command-line arguments
 MODE="github"  # default: download from GitHub
 HELP=false
@@ -66,8 +94,63 @@ EOF
     exit 0
 fi
 
-# Check for required Python modules
-yellow 'Checking dependencies...'
+# Check for required Python modules and system packages
+# Skip dependency installation in validate-config mode
+if [ "$VALIDATE_CONFIG_ONLY" = false ]; then
+    yellow 'Checking dependencies...'
+
+    # Check if we can install packages (need root or sudo)
+    CAN_INSTALL_PACKAGES=false
+    if [ "$EUID" -eq 0 ]; then
+        CAN_INSTALL_PACKAGES=true
+    elif command -v sudo &> /dev/null && sudo -n true 2>/dev/null; then
+        CAN_INSTALL_PACKAGES=true
+    fi
+
+    # Check for sshpass
+    if ! command -v sshpass &> /dev/null; then
+        echo "  sshpass not found"
+
+        if [ "$CAN_INSTALL_PACKAGES" = false ]; then
+            red "✗ Error: sshpass is required but not installed"
+            echo "  Please run: sudo apt-get install sshpass"
+            echo "  Or run this installer as root"
+            exit 1
+        fi
+
+        echo "  Installing sshpass..."
+
+        if command -v apt-get &> /dev/null; then
+            if [ "$EUID" -eq 0 ]; then
+                apt-get update -qq && apt-get install -y sshpass
+            else
+                sudo apt-get update -qq && sudo apt-get install -y sshpass
+            fi
+        elif command -v yum &> /dev/null; then
+            if [ "$EUID" -eq 0 ]; then
+                yum install -y sshpass
+            else
+                sudo yum install -y sshpass
+            fi
+        else
+            red "✗ Error: Cannot automatically install sshpass"
+            echo "  Please install manually:"
+            echo "    Debian/Ubuntu: sudo apt-get install sshpass"
+            echo "    RHEL/CentOS: sudo yum install sshpass"
+            exit 1
+        fi
+
+        # Verify installation
+        if command -v sshpass &> /dev/null; then
+            green "  ✓ sshpass installed"
+        else
+            red "✗ Error: Failed to install sshpass"
+            exit 1
+        fi
+    else
+        green "  ✓ sshpass available"
+    fi
+fi
 
 # Check for PyYAML
 if ! python3 -c "import yaml" 2>/dev/null; then

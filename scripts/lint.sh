@@ -21,13 +21,13 @@ run_check() {
     # Run command and capture both output and exit code
     local output
     output=$(eval "$check_command" 2>&1) || local exit_code=$?
-    
+
     # Display output with indentation
     if [ -n "$output" ]; then
         # shellcheck disable=SC2001
         echo "$output" | sed 's/^/  /'
     fi
-    
+
     if [ "${exit_code:-0}" -eq 0 ]; then
         echo -e "${GREEN}✓ ${check_name} passed${NC}"
         echo ""

@@ -6,10 +6,16 @@ Monitoring templates for Cambium Networks devices on Zabbix, LibreNMS, and other
 
 ## Quick Start
 
-Run this command on your NMS server:
+**Important:** This installer must be run as root to install system dependencies and scripts.
 
+**If you're already root (Proxmox LXC containers, etc.):**
 ```bash
 curl -o- https://raw.githubusercontent.com/cmbmwifi/cambium-nms-templates/refs/heads/main/install.sh | bash
+```
+
+**If you're not root, install with sudo:**
+```bash
+curl -o- https://raw.githubusercontent.com/cmbmwifi/cambium-nms-templates/refs/heads/main/install.sh | sudo bash
 ```
 
 The interactive menu will guide you through installing the template.
@@ -25,9 +31,11 @@ The interactive menu will guide you through installing the template.
 
 - Zabbix 7.0+ (or your NMS platform)
 - SSH access to devices
-- Root/sudo access on NMS server
+- **Root access on NMS server** (required for installing dependencies and scripts)
 - curl to run the installer
 - Python 3.8+ (for external scripts)
+
+**Note:** In Proxmox LXC containers, you typically run as root by default.
 
 ## Support and Disclaimer
 

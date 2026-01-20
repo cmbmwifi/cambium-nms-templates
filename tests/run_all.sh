@@ -40,13 +40,16 @@ run_test() {
     fi
 }
 
-# 1. Mock OLT Tests
+# 1. Unit Tests (run first)
+run_test "Unit Tests" "'$SCRIPT_DIR/unit/run_unit_tests.sh'"
+
+# 2. Mock OLT Tests
 run_test "Mock OLT Tests" "python3 '$SCRIPT_DIR/integration/mock-olt/test_mock_olt.py'"
 
-# 2. Installer Tests
+# 3. Installer Tests
 run_test "Installer Tests" "'$SCRIPT_DIR/integration/run_installer_tests.sh'"
 
-# 3. Zabbix Integration Tests
+# 4. Zabbix Integration Tests
 run_test "Zabbix Integration Tests" "'$SCRIPT_DIR/integration/run_all_zabbix_tests.sh'"
 
 # Summary
