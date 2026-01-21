@@ -82,16 +82,17 @@ user_inputs:
     description: "Delete the Cambium Fiber OLT template if it exists"
     default: false
     help_text: |
-      If you select Yes, the installer will remove the existing
-      "Cambium Fiber OLT by SSH" template before installing.
+      If you select Yes, the installer will:
+        1. Delete the template if it exists
+        2. Import the new template
+        3. Automatically relink any existing hosts to the new template
 
-      This is useful for:
-        - Reinstalling after template updates
-        - Fixing template corruption or conflicts
-        - Testing/development (clean slate each run)
+      Safe to use anytime - works on first install or upgrades.
 
-      Note: This only removes the template definition, not the hosts.
-      Use "Remove existing hosts" to also delete hosts.
+      Useful for:
+        - Applying template updates
+        - Fixing template corruption
+        - Starting fresh with a clean template
 
   - name: "flush_hosts"
     type: "boolean"
@@ -99,18 +100,16 @@ user_inputs:
     description: "Delete all hosts using the Cambium Fiber OLT template"
     default: false
     help_text: |
-      If you select Yes, the installer will remove ALL hosts that
-      are currently using the "Cambium Fiber OLT by SSH" template.
+      If you select Yes, the installer will remove all existing
+      OLT hosts, then create only the hosts you specify.
 
-      WARNING: This will delete all hosts and their historical data!
+      You will lose historical data but it is otherwise safe to use when:
+        - Changing which OLTs are monitored
+        - Removing decommissioned OLTs
+        - Starting fresh with a new set of hosts
 
-      This is useful for:
-        - Testing/development (clean slate each run)
-        - Starting fresh after major configuration changes
-        - Removing misconfigured hosts
-
-      If you select No, existing hosts will be preserved and will
-      continue using the updated template.
+      If you select No, existing hosts are preserved and new
+      hosts (if any) are added alongside them.
 
   - name: "add_hosts"
     type: "boolean"

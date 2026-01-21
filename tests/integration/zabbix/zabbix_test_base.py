@@ -360,6 +360,7 @@ class ZabbixTestBase:
                     from suites.test_host_operations import HostOperationsTests
                     from suites.test_item_data_collection import ItemDataCollectionTests
                     from suites.test_advanced_features import AdvancedFeaturesTests
+                    from suites.test_installer_operations import InstallerOperationsTests
 
                     # Priority 1: Core Functionality
                     core_tests = CoreFunctionalityTests(self.harness)
@@ -384,6 +385,10 @@ class ZabbixTestBase:
                     # Priority 6: Advanced Features
                     advanced_tests = AdvancedFeaturesTests(self.harness)
                     advanced_tests.run_all()
+
+                    # Priority 7: Installer Operations
+                    installer_tests = InstallerOperationsTests(self.harness)
+                    installer_tests.run_all()
 
                 except ImportError as e:
                     print(f"{Colors.YELLOW}Warning: Could not load extended test suites: {e}{Colors.NC}")

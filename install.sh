@@ -794,6 +794,66 @@ fi
 
 green "  ✓ Template imported successfully"
 
+# Step 4b: Relink orphaned hosts if template was flushed
+if [ "${USER_VALUES[flush_template]}" = "true" ]; then
+    yellow '▶ Step 4b: Relinking orphaned hosts to new template...'
+
+    # Get new template ID after reimport
+    NEW_TEMPLATE_RESPONSE=$(zabbix_api_call "template.get" '{
+        "filter": {"host": "Cambium Fiber OLT by SSH v1.3.0"}
+    }')
+
+    NEW_TEMPLATE_ID=$(echo "$NEW_TEMPLATE_RESPONSE" | grep -o '"templateid":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+    if [ -z "$NEW_TEMPLATE_ID" ]; then
+        red "✗ Error: Could not get new template ID after import"
+        exit 1
+    fi
+
+    # Find orphaned hosts (hosts with no templates)
+    ORPHANED_HOSTS_RESPONSE=$(zabbix_api_call "host.get" '{
+        "output": ["hostid", "host"],
+        "selectParentTemplates": ["templateid"]
+    }')
+
+    # Parse JSON to find hosts with empty parentTemplates
+    ORPHANED_HOST_IDS=$(echo "$ORPHANED_HOSTS_RESPONSE" | python3 -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    if isinstance(data, dict) and 'result' in data:
+        hosts = data['result']
+    else:
+        hosts = data
+    orphaned = [h['hostid'] for h in hosts if not h.get('parentTemplates', [])]
+    print('\n'.join(orphaned))
+except:
+    pass
+")
+
+    if [ -n "$ORPHANED_HOST_IDS" ]; then
+        ORPHAN_COUNT=$(echo "$ORPHANED_HOST_IDS" | wc -l)
+        echo "  Found $ORPHAN_COUNT orphaned host(s), relinking to new template..."
+
+        # Relink each orphaned host
+        for host_id in $ORPHANED_HOST_IDS; do
+            RELINK_RESPONSE=$(zabbix_api_call "host.update" "{
+                \"hostid\": \"$host_id\",
+                \"templates\": [{\"templateid\": \"$NEW_TEMPLATE_ID\"}]
+            }")
+
+            if echo "$RELINK_RESPONSE" | grep -q '"error"'; then
+                red "✗ Warning: Failed to relink host $host_id"
+                echo "  Response: $RELINK_RESPONSE"
+            fi
+        done
+
+        green "  ✓ Relinked $ORPHAN_COUNT host(s) to new template"
+    else
+        echo "  No orphaned hosts found (skipping)"
+    fi
+fi
+
 # Step 5: Deploy external script
 yellow '▶ Step 5: Deploying external script...'
 
