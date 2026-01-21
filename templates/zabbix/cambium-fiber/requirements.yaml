@@ -351,7 +351,7 @@ examples:
       curl -o- https://raw.githubusercontent.com/cmbmwifi/cambium-nms-templates/main/install.sh | bash
 
   manual_host_creation:
-    - "Navigate to: Configuration → Hosts → Create host"
+    - "Navigate to: Configuration > Hosts > Create host"
     - "Set host name (preferably from System.Name via SSH)"
     - "Add Agent interface with OLT IP address"
     - "Link template: Cambium Fiber OLT by SSH v1.3.0"
