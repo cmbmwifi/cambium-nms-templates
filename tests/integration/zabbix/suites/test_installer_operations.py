@@ -518,6 +518,85 @@ class InstallerOperationsTests:
             self.harness.assertions.assert_true(False, f"Test exception: {str(e)}")
             return False
 
+    def test_flush_both_removes_all_old_hosts(self) -> bool:
+        """Verify flush_template + flush_hosts removes ALL old hosts before adding new ones"""
+        self.harness.assertions.start_test("flush_template + flush_hosts removes all old hosts")
+
+        if not self.harness.api_client:
+            self.harness.assertions.assert_true(False, "API client not initialized")
+            return False
+
+        try:
+            # Step 1: Install with two OLTs (.10 and .11)
+            env_two_olts = {
+                "OLT_IPS": f"{self.harness.mock_olt_1},{self.harness.mock_olt_2}",
+                "FLUSH_TEMPLATE": "false",
+                "FLUSH_HOSTS": "false",
+                "ADD_HOSTS": "true"
+            }
+
+            exit_code, output = self.run_installer_with_env(env_two_olts)
+            if exit_code != 0:
+                self.harness.assertions.assert_true(
+                    False,
+                    f"Initial install with two OLTs failed (exit {exit_code})",
+                    output[:500]
+                )
+                return False
+
+            # Step 2: Run with flush_template=true AND flush_hosts=true, add only .10
+            env_flush_both = {
+                "OLT_IPS": self.harness.mock_olt_1,  # Only .10
+                "FLUSH_TEMPLATE": "true",
+                "FLUSH_HOSTS": "true",
+                "ADD_HOSTS": "true"
+            }
+
+            exit_code, output = self.run_installer_with_env(env_flush_both)
+            if exit_code != 0:
+                self.harness.assertions.assert_true(
+                    False,
+                    f"Flush both and reinstall failed (exit {exit_code})",
+                    output[:500]
+                )
+                return False
+
+            # Step 3: Verify only .10 exists (not .11)
+            template = self.harness.api_client.get_template(TEMPLATE_NAME)
+            if not template:
+                self.harness.assertions.assert_true(False, "Template not found after flush")
+                return False
+
+            final_hosts = self.harness.api_client.request("host.get", {
+                "templateids": [template['templateid']],
+                "output": ["hostid", "host"],
+                "selectInterfaces": ["ip"]
+            })
+
+            if not isinstance(final_hosts, list):
+                self.harness.assertions.assert_true(False, "Failed to get final hosts")
+                return False
+
+            final_host_ips = []
+            for host in final_hosts:
+                if host.get('interfaces'):
+                    final_host_ips.extend([iface['ip'] for iface in host['interfaces']])
+
+            # Expected: Only .10 should exist, .11 should be gone
+            only_olt1 = (self.harness.mock_olt_1 in final_host_ips and
+                        self.harness.mock_olt_2 not in final_host_ips)
+
+            self.harness.assertions.assert_true(
+                only_olt1,
+                f"flush_template + flush_hosts removed old hosts, created only {self.harness.mock_olt_1}",
+                f"Expected only .10, found IPs: {final_host_ips}"
+            )
+            return only_olt1
+
+        except Exception as e:
+            self.harness.assertions.assert_true(False, f"Test exception: {str(e)}")
+            return False
+
     def run_all(self) -> dict:
         """Run all installer operation tests"""
         print(f"\n{Colors.BLUE}{'='*70}{Colors.NC}")
@@ -529,6 +608,7 @@ class InstallerOperationsTests:
             ("Flush Template Resets Modified Template", self.test_flush_template_resets_modified_template),
             ("Flush Template On First Install", self.test_flush_template_on_first_install),
             ("Add Hosts Preserves Existing", self.test_add_hosts_preserves_existing),
+            ("Flush Both Removes All Old Hosts", self.test_flush_both_removes_all_old_hosts),
         ]
 
         results = {}

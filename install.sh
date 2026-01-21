@@ -638,35 +638,9 @@ fi
 
 green "  ✓ API authentication successful"
 
-# Step 2: Flush existing template if requested
-if [ "${USER_VALUES[flush_template]}" = "true" ]; then
-    yellow '▶ Step 2: Removing existing template...'
-
-    # Get template ID
-    TEMPLATE_RESPONSE=$(zabbix_api_call "template.get" '{
-        "filter": {"host": "Cambium Fiber OLT by SSH v1.3.0"}
-    }')
-
-    TEMPLATE_ID=$(echo "$TEMPLATE_RESPONSE" | grep -o '"templateid":"[^"]*"' | head -1 | cut -d'"' -f4)
-
-    if [ -n "$TEMPLATE_ID" ]; then
-        echo "  Found existing template (ID: $TEMPLATE_ID), deleting..."
-        DELETE_RESPONSE=$(zabbix_api_call "template.delete" "[\"$TEMPLATE_ID\"]")
-
-        if echo "$DELETE_RESPONSE" | grep -q '"error"'; then
-            red "✗ Error: Failed to delete template"
-            echo "  Response: $DELETE_RESPONSE"
-            exit 1
-        fi
-        green "  ✓ Template removed"
-    else
-        echo "  No existing template found (skipping)"
-    fi
-fi
-
-# Step 3: Flush existing hosts if requested
+# Step 2: Flush existing hosts if requested (MUST run before template deletion)
 if [ "${USER_VALUES[flush_hosts]}" = "true" ]; then
-    yellow '▶ Step 3: Removing existing hosts...'
+    yellow '▶ Step 2: Removing existing hosts...'
 
     # Get template ID first
     TEMPLATE_RESPONSE=$(zabbix_api_call "template.get" '{
@@ -714,6 +688,32 @@ if [ "${USER_VALUES[flush_hosts]}" = "true" ]; then
         fi
     else
         echo "  Template not found (skipping host deletion)"
+    fi
+fi
+
+# Step 3: Flush existing template if requested (MUST run after host deletion)
+if [ "${USER_VALUES[flush_template]}" = "true" ]; then
+    yellow '▶ Step 3: Removing existing template...'
+
+    # Get template ID
+    TEMPLATE_RESPONSE=$(zabbix_api_call "template.get" '{
+        "filter": {"host": "Cambium Fiber OLT by SSH v1.3.0"}
+    }')
+
+    TEMPLATE_ID=$(echo "$TEMPLATE_RESPONSE" | grep -o '"templateid":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+    if [ -n "$TEMPLATE_ID" ]; then
+        echo "  Found existing template (ID: $TEMPLATE_ID), deleting..."
+        DELETE_RESPONSE=$(zabbix_api_call "template.delete" "[\"$TEMPLATE_ID\"]")
+
+        if echo "$DELETE_RESPONSE" | grep -q '"error"'; then
+            red "✗ Error: Failed to delete template"
+            echo "  Response: $DELETE_RESPONSE"
+            exit 1
+        fi
+        green "  ✓ Template removed"
+    else
+        echo "  No existing template found (skipping)"
     fi
 fi
 
@@ -794,8 +794,9 @@ fi
 
 green "  ✓ Template imported successfully"
 
-# Step 4b: Relink orphaned hosts if template was flushed
-if [ "${USER_VALUES[flush_template]}" = "true" ]; then
+# Step 4b: Relink orphaned hosts if template was flushed (but hosts were NOT flushed)
+# If flush_hosts=true, we intentionally deleted the hosts, so don't relink them
+if [ "${USER_VALUES[flush_template]}" = "true" ] && [ "${USER_VALUES[flush_hosts]}" != "true" ]; then
     yellow '▶ Step 4b: Relinking orphaned hosts to new template...'
 
     # Get new template ID after reimport
