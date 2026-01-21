@@ -50,10 +50,10 @@ user_inputs:
       Creating a Zabbix API Token:
 
       1. In Zabbix web UI, in the bottom of the left navigation bar
-      2. Select: User settings → API tokens
+      2. Select: User settings > API tokens
       3. Click: the "Create API token" button
       4. Enter a name like: "Installer" (or any descriptive name)
-      5. Click to set the expiration date → choose tomorrow
+      5. Click to set the expiration date > choose tomorrow
          Note: The Token is only needed during installation
       6. Click: Add
       7. Copy the Auth token value from the dialog
