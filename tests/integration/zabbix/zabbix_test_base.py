@@ -15,7 +15,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 try:
     import requests
@@ -25,12 +25,12 @@ except ImportError:
 
 # Import refactored components
 try:
-    from .base.test_harness import ZabbixTestHarness, LegacyTestMethods
-    from .base.docker_helpers import Colors
+    from .base.test_harness import ZabbixTestHarness, LegacyTestMethods  # type: ignore[no-redef]
+    from .base.docker_helpers import Colors  # type: ignore[no-redef]
 except ImportError:
     # Fallback for direct execution
-    from base.test_harness import ZabbixTestHarness, LegacyTestMethods
-    from base.docker_helpers import Colors
+    from base.test_harness import ZabbixTestHarness, LegacyTestMethods  # type: ignore[no-redef]
+    from base.docker_helpers import Colors  # type: ignore[no-redef]
 
 
 class ZabbixTestBase:
@@ -110,7 +110,7 @@ class ZabbixTestBase:
         """Assert test condition and track results"""
         self.harness.assertions.assert_true(condition, test_name, error_msg)
 
-    def run_command(self, cmd: list, capture: bool = True) -> tuple[int, str]:
+    def run_command(self, cmd: list, capture: bool = True) -> Tuple[int, str]:
         """Execute shell command"""
         return self.harness.docker.run_command(cmd, capture)
 
@@ -118,7 +118,7 @@ class ZabbixTestBase:
         """Print colored message"""
         self.harness.print_colored(message, color)
 
-    def _docker_exec(self, container: str, command: list) -> tuple[int, str]:
+    def _docker_exec(self, container: str, command: list) -> Tuple[int, str]:
         """Execute command in Docker container"""
         return self.harness.docker.exec_command(container, command)
 

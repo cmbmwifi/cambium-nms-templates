@@ -14,10 +14,10 @@ from pathlib import Path
 
 # Support both package imports and direct script execution
 try:
-    from ..base.test_harness import ZabbixTestHarness, Colors
+    from ..base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
 except ImportError:
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from base.test_harness import ZabbixTestHarness, Colors
+    from base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
 
 
 TEMPLATE_NAME = "Cambium Fiber OLT by SSH v1.3.0"

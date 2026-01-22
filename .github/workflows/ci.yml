@@ -42,3 +42,8 @@ jobs:
           yamllint templates/
           python3 -c "import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/template.yaml'))"
           python3 -c "import yaml; yaml.safe_load(open('templates/zabbix/cambium-fiber/requirements.yaml'))"
+
+      - name: Type checking with mypy
+        run: |
+          pip install mypy types-PyYAML types-requests
+          mypy .

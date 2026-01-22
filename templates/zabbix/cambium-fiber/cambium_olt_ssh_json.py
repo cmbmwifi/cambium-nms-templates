@@ -408,7 +408,11 @@ class JsonPath:
         if token.kind == "index":
             if not isinstance(current, list):
                 return None  # Return None for invalid index instead of error
-            idx = int(token.value)
+            idx_val = token.value
+            # Handle None value explicitly
+            if idx_val is None:
+                return None
+            idx = int(idx_val)
             if idx < 0 or idx >= len(current):
                 return None  # Return None for out of range instead of error
             return current[idx]

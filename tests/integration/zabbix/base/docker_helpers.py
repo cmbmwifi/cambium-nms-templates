@@ -87,7 +87,7 @@ class DockerManager:
             if result.returncode != 0 and "already exists" not in result.stderr:
                 raise RuntimeError(f"Failed to create shared network: {result.stderr}")
 
-    def _check_infrastructure_running(self) -> tuple[bool, bool]:
+    def _check_infrastructure_running(self) -> Tuple[bool, bool]:
         """
         Check if test infrastructure is running.
 
@@ -197,7 +197,7 @@ class DockerManager:
             )
         print(f"{Colors.GREEN}✓ All test databases dropped{Colors.NC}")
 
-    def _ensure_test_infrastructure(self) -> tuple[bool, bool]:
+    def _ensure_test_infrastructure(self) -> Tuple[bool, bool]:
         """
         Start test infrastructure (MySQL, Mock OLTs) if not already running.
 

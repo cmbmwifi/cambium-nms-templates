@@ -107,7 +107,8 @@ class ZabbixAPIClient:
             error_data = result["error"]
             raise RuntimeError(f"API error: {error_data.get('message')} - {error_data.get('data')}")
 
-        return result.get("result", {})
+        result_data: Union[Dict[str, Any], List[Any]] = result.get("result", {})
+        return result_data
 
     def get_template(self, template_name: str) -> Optional[Dict[str, Any]]:
         """
@@ -121,7 +122,8 @@ class ZabbixAPIClient:
         """
         result = self.request("template.get", {"filter": {"host": template_name}})
         if isinstance(result, list) and len(result) > 0:
-            return result[0]
+            template_data: Optional[Dict[str, Any]] = result[0]
+            return template_data
         return None
 
     def get_host(self, identifier: str) -> Optional[Dict[str, Any]]:
@@ -149,7 +151,8 @@ class ZabbixAPIClient:
             })
 
         if isinstance(result, list) and len(result) > 0:
-            return result[0]
+            host_data: Optional[Dict[str, Any]] = result[0]
+            return host_data
         return None
 
     def get_items(self, hostid: str, **filters: Any) -> list:

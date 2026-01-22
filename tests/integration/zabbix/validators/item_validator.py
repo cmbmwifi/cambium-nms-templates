@@ -11,13 +11,12 @@ from typing import List, NamedTuple
 
 # Support both package imports and direct script execution
 try:
-    from ..base.api_helpers import ZabbixAPIClient
-    from .template_validator import ValidationResult
+    from ..base.api_helpers import ZabbixAPIClient  # type: ignore[no-redef]
+    from .template_validator import ValidationResult  # type: ignore[no-redef]
 except ImportError:
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from base.api_helpers import ZabbixAPIClient
-    from validators.template_validator import ValidationResult
-
+    from base.api_helpers import ZabbixAPIClient  # type: ignore[no-redef]
+    from validators.template_validator import ValidationResult  # type: ignore[no-redef]
 
 
 class ItemError(NamedTuple):

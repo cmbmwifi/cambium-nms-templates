@@ -11,18 +11,19 @@ Tests critical template functionality including:
 
 import sys
 from pathlib import Path
+from typing import Optional
 
 # Support both package imports and direct script execution
 try:
-    from ..base.test_harness import ZabbixTestHarness, Colors
-    from ..validators.template_validator import TemplateValidator
-    from ..validators.item_validator import ItemValidator
+    from ..base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
+    from ..validators.template_validator import TemplateValidator  # type: ignore[no-redef]
+    from ..validators.item_validator import ItemValidator  # type: ignore[no-redef]
 except ImportError:
     # Add parent directory to path for direct script execution
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from base.test_harness import ZabbixTestHarness, Colors
-    from validators.template_validator import TemplateValidator
-    from validators.item_validator import ItemValidator
+    from base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
+    from validators.template_validator import TemplateValidator  # type: ignore[no-redef]
+    from validators.item_validator import ItemValidator  # type: ignore[no-redef]
 
 
 TEMPLATE_NAME = "Cambium Fiber OLT by SSH v1.3.0"
@@ -40,8 +41,8 @@ class CoreFunctionalityTests:
             harness: ZabbixTestHarness instance
         """
         self.harness = harness
-        self.template_validator = None
-        self.item_validator = None
+        self.template_validator: Optional[TemplateValidator] = None
+        self.item_validator: Optional[ItemValidator] = None
 
     def setup_validators(self) -> None:
         """Initialize validators after API authentication."""
@@ -65,7 +66,8 @@ class CoreFunctionalityTests:
             result.message,
             "" if result.passed else "Template not found in Zabbix"
         )
-        return result.details.get("template_id", "")
+        template_id: str = str(result.details.get("template_id", ""))
+        return template_id
 
     def test_discovery_rules_exist(self) -> None:
         """Test 2: Discovery rules are created and operational."""

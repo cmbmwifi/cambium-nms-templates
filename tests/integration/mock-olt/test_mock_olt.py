@@ -13,6 +13,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Tuple
 
 
 class Colors:
@@ -47,7 +48,7 @@ class MockOLTTest:
                 print(f"  Error: {error_msg}")
             self.failed += 1
 
-    def run_command(self, cmd: list) -> tuple[int, str]:
+    def run_command(self, cmd: list) -> Tuple[int, str]:
         """Execute shell command"""
         result = subprocess.run(cmd, capture_output=True, text=True)
         return result.returncode, result.stdout + result.stderr

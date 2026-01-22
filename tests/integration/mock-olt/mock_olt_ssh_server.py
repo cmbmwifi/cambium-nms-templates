@@ -180,10 +180,13 @@ class MockOLTSession(asyncssh.SSHServerSession):
 async def start_server(
     host: str = '0.0.0.0',
     port: int = 22,
-    fixture_path: Path = None,
+    fixture_path: Optional[Path] = None,
     password: str = "password"
 ) -> None:
     """Start the mock OLT SSH server"""
+
+    if fixture_path is None:
+        raise ValueError("fixture_path is required")
 
     # Load fixture data
     if not fixture_path.exists():

@@ -17,12 +17,12 @@ from typing import Optional
 
 # Support both package imports and direct script execution
 try:
-    from ..base.test_harness import ZabbixTestHarness, Colors
-    from ..validators.item_validator import ItemValidator
+    from ..base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
+    from ..validators.item_validator import ItemValidator  # type: ignore[no-redef]
 except ImportError:
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from base.test_harness import ZabbixTestHarness, Colors
-    from validators.item_validator import ItemValidator
+    from base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
+    from validators.item_validator import ItemValidator  # type: ignore[no-redef]
 
 
 TEMPLATE_NAME = "Cambium Fiber OLT by SSH v1.3.0"
@@ -33,10 +33,9 @@ class ItemDataCollectionTests:
 
     def __init__(self, harness: ZabbixTestHarness):
         self.harness = harness
+        self.validator: Optional[ItemValidator] = None
         if harness.api_client:
             self.validator = ItemValidator(harness.api_client)
-        else:
-            self.validator = None
 
     def test_items_have_value_types(self) -> bool:
         """Verify items have appropriate value types configured"""
@@ -62,7 +61,8 @@ class ItemDataCollectionTests:
             return False
 
         # Value types: 0=float, 1=character, 2=log, 3=unsigned, 4=text
-        value_type_counts = {}
+        from typing import Dict
+        value_type_counts: Dict[int, int] = {}
         for item in items:
             vtype = int(item.get('value_type', 0))
             value_type_counts[vtype] = value_type_counts.get(vtype, 0) + 1

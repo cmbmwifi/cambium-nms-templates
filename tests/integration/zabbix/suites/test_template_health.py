@@ -11,15 +11,16 @@ Tests template structure and configuration including:
 
 import sys
 from pathlib import Path
+from typing import Optional
 
 # Support both package imports and direct script execution
 try:
-    from ..base.test_harness import ZabbixTestHarness, Colors
-    from ..validators.template_validator import TemplateValidator
+    from ..base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
+    from ..validators.template_validator import TemplateValidator  # type: ignore[no-redef]
 except ImportError:
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from base.test_harness import ZabbixTestHarness, Colors
-    from validators.template_validator import TemplateValidator
+    from base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
+    from validators.template_validator import TemplateValidator  # type: ignore[no-redef]
 
 
 TEMPLATE_NAME = "Cambium Fiber OLT by SSH v1.3.0"
@@ -30,10 +31,9 @@ class TemplateHealthTests:
 
     def __init__(self, harness: ZabbixTestHarness):
         self.harness = harness
+        self.validator: Optional[TemplateValidator] = None
         if harness.api_client:
             self.validator = TemplateValidator(harness.api_client)
-        else:
-            self.validator = None
 
     def test_template_exists(self) -> bool:
         """Verify template exists in Zabbix after import"""

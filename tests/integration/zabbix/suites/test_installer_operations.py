@@ -11,14 +11,14 @@ Tests installer functionality with Zabbix including:
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 # Support both package imports and direct script execution
 try:
-    from ..base.test_harness import ZabbixTestHarness, Colors
+    from ..base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
 except ImportError:
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from base.test_harness import ZabbixTestHarness, Colors
+    from base.test_harness import ZabbixTestHarness, Colors  # type: ignore[no-redef]
 
 
 TEMPLATE_NAME = "Cambium Fiber OLT by SSH v1.3.0"
@@ -31,7 +31,7 @@ class InstallerOperationsTests:
         self.harness = harness
         self.repo_root = harness.repo_root
 
-    def run_installer_with_env(self, env_vars: dict) -> tuple[int, str]:
+    def run_installer_with_env(self, env_vars: dict) -> Tuple[int, str]:
         """Run installer with environment variables inside Docker container"""
         env = {
             "ZABBIX_API_URL": "http://localhost:8080",

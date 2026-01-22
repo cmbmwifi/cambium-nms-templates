@@ -59,29 +59,29 @@ class ColoredTextTestRunner(unittest.TextTestRunner):
         print(f"\n{Colors.BLUE}{'='*60}{Colors.NC}")
         print(f"{Colors.BLUE}Running Unit Tests: Error Handling{Colors.NC}")
         print(f"{Colors.BLUE}{'='*60}{Colors.NC}\n")
-        
+
         result = super().run(test)
-        
+
         # Print summary
         print(f"\n{Colors.BLUE}{'='*60}{Colors.NC}")
         print(f"{Colors.BLUE}Test Summary{Colors.NC}")
         print(f"{Colors.BLUE}{'='*60}{Colors.NC}")
-        
+
         total = result.testsRun
         passed = total - len(result.failures) - len(result.errors)
-        
+
         print(f"Total tests: {total}")
         print(f"{Colors.GREEN}Passed: {passed}{Colors.NC}")
-        
+
         if result.failures:
             print(f"{Colors.RED}Failed: {len(result.failures)}{Colors.NC}")
         if result.errors:
             print(f"{Colors.RED}Errors: {len(result.errors)}{Colors.NC}")
         if result.skipped:
             print(f"{Colors.YELLOW}Skipped: {len(result.skipped)}{Colors.NC}")
-        
+
         print()
-        
+
         return result
 
 
@@ -101,31 +101,32 @@ from cambium_olt_ssh_json import (
 class TestSSHErrorPropagation(unittest.TestCase):
     """Test that SSH errors are properly propagated, not swallowed."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures."""
-        self.debug = DebugLog(enabled=False)
-        self.output = OLTOutput(self.debug)
-        self.transport = OLTTransport(self.output, self.debug)
+        debug_log = DebugLog(enabled=False)
+        self.debug_log = debug_log
+        self.output = OLTOutput(debug_log)
+        self.transport = OLTTransport(self.output, debug_log)
         self.request = OLTRequest(host="192.168.1.1", password="testpass")
 
     def test_ssh_connection_failure_raises_exception(self):
         """Test that SSH connection failures raise an exception."""
         with patch.object(self.transport, '_run_sshpass') as mock_ssh:
             mock_ssh.side_effect = RuntimeError("SSH connection failed")
-            
+
             with self.assertRaises(RuntimeError) as context:
                 self.transport.fetch_all(self.request)
-            
+
             self.assertIn("SSH connection failed", str(context.exception))
 
     def test_ssh_timeout_raises_exception(self):
         """Test that SSH timeouts raise an exception."""
         with patch.object(self.transport, '_run_sshpass') as mock_ssh:
             mock_ssh.side_effect = TimeoutError("Connection timeout")
-            
+
             with self.assertRaises(TimeoutError) as context:
                 self.transport.fetch_all(self.request)
-            
+
             self.assertIn("timeout", str(context.exception).lower())
 
     def test_invalid_json_raises_exception(self):
@@ -133,7 +134,7 @@ class TestSSHErrorPropagation(unittest.TestCase):
         with patch.object(self.transport, '_run_sshpass') as mock_ssh:
             # Return invalid JSON
             mock_ssh.return_value = "This is not JSON"
-            
+
             with self.assertRaises(Exception):
                 self.transport.fetch_all(self.request)
 
@@ -141,7 +142,7 @@ class TestSSHErrorPropagation(unittest.TestCase):
         """Test that empty SSH responses raise an exception."""
         with patch.object(self.transport, '_run_sshpass') as mock_ssh:
             mock_ssh.return_value = ""
-            
+
             with self.assertRaises(Exception):
                 self.transport.fetch_all(self.request)
 
@@ -149,9 +150,9 @@ class TestSSHErrorPropagation(unittest.TestCase):
         """Test that successful SSH fetch returns parsed data."""
         with patch.object(self.transport, '_run_sshpass') as mock_ssh:
             mock_ssh.return_value = '{"test": "data", "number": "42"}'
-            
+
             result = self.transport.fetch_all(self.request)
-            
+
             self.assertIsInstance(result, dict)
             self.assertEqual(result["test"], "data")
             # Verify number coercion
@@ -169,28 +170,28 @@ class TestCLIErrorHandling(unittest.TestCase):
         """Test that CLI exits with error code 1 on SSH failure."""
         with patch('cambium_olt_ssh_json.OLTTransport.fetch_all') as mock_fetch:
             mock_fetch.side_effect = RuntimeError("SSH failed")
-            
+
             exit_code = self.cli.run(["192.168.1.1", "badpass"])
-            
+
             self.assertEqual(exit_code, 1)
 
     def test_cli_returns_error_code_on_json_parse_failure(self):
         """Test that CLI exits with error code 1 on JSON parse failure."""
         with patch('cambium_olt_ssh_json.OLTTransport._run_sshpass') as mock_ssh:
             mock_ssh.return_value = "invalid json"
-            
+
             exit_code = self.cli.run(["192.168.1.1", "testpass"])
-            
+
             self.assertEqual(exit_code, 1)
 
     def test_cli_returns_success_on_valid_data(self):
         """Test that CLI exits with code 0 on success."""
         with patch('cambium_olt_ssh_json.OLTTransport._run_sshpass') as mock_ssh:
             mock_ssh.return_value = '{"test": "data"}'
-            
+
             with patch('sys.stdout'):  # Suppress output
                 exit_code = self.cli.run(["192.168.1.1", "testpass", "--no-cache"])
-            
+
             self.assertEqual(exit_code, 0)
 
     @patch('sys.stderr')
@@ -198,37 +199,38 @@ class TestCLIErrorHandling(unittest.TestCase):
         """Test that CLI writes error messages to stderr."""
         with patch('cambium_olt_ssh_json.OLTTransport.fetch_all') as mock_fetch:
             mock_fetch.side_effect = RuntimeError("Connection refused")
-            
+
             exit_code = self.cli.run(["192.168.1.1", "testpass"])
-            
+
             self.assertEqual(exit_code, 1)
 
 
 class TestOutputParsing(unittest.TestCase):
     """Test that output parsing errors are properly raised."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures."""
-        self.debug = DebugLog(enabled=False)
-        self.output = OLTOutput(self.debug)
+        debug_log = DebugLog(enabled=False)
+        self.debug_log = debug_log
+        self.output = OLTOutput(debug_log)
 
     def test_no_json_in_output_raises_exception(self):
         """Test that output with no JSON raises an exception."""
         raw_output = "Error: Command not found\nConnection closed"
-        
+
         with self.assertRaises(ValueError) as context:
             self.output.to_json_text(raw_output)
-        
+
         self.assertIn("no JSON found", str(context.exception))
 
     def test_malformed_json_detected(self):
         """Test that malformed JSON in output is detected."""
         # Include complete JSON so to_json_text can extract it
         raw_output = '{"incomplete": "data"}'
-        
+
         # to_json_text should extract it successfully
         json_text = self.output.to_json_text(raw_output)
-        
+
         # Now test with actual malformed JSON
         import json
         malformed = '{"incomplete": "data"'

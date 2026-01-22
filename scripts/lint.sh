@@ -62,9 +62,9 @@ run_check "YAML validation" "python3 -c \"import yaml; yaml.safe_load(open('temp
 
 # 5. Type checking with mypy (if installed)
 if command -v mypy &> /dev/null; then
-    run_check "Type checking" "mypy --ignore-missing-imports --check-untyped-defs tests/integration/installer/test_installer_menu.py"
+    run_check "Type checking" "mypy ."
 elif python3 -m mypy --version &> /dev/null; then
-    run_check "Type checking" "python3 -m mypy --ignore-missing-imports --check-untyped-defs tests/integration/installer/test_installer_menu.py"
+    run_check "Type checking" "python3 -m mypy ."
 else
     echo -e "${YELLOW}⚠ mypy not installed - skipping type checking (install with: pip install mypy)${NC}"
     echo ""

@@ -14,7 +14,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple, List, Union
 
 try:
     import pexpect
@@ -58,7 +58,8 @@ class InstallerTest:
             text=True,
             check=True
         )
-        self.container_id = result.stdout.strip()
+        container_id_raw: Optional[str] = result.stdout.strip() if result.stdout else None
+        self.container_id = container_id_raw
         print(f"Container ID: {self.container_id}\n")
         time.sleep(2)  # Wait for container to be ready
 
@@ -71,8 +72,10 @@ class InstallerTest:
             subprocess.run(["docker", "rm", self.container_id],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    def run_command(self, command: str) -> tuple[int, str]:
+    def run_command(self, command: str) -> Tuple[int, str]:
         """Execute command in container and return exit code and output"""
+        if self.container_id is None:
+            raise RuntimeError("Container not initialized")
         result = subprocess.run(
             ["docker", "exec", self.container_id, "bash", "-c", command],
             capture_output=True,

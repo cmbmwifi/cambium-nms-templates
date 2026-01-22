@@ -5,7 +5,7 @@ Test assertion helpers for Zabbix integration tests.
 Provides colored output and test result tracking.
 """
 
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 
 class Colors:
@@ -100,7 +100,7 @@ class TestAssertions:
             result: TestResult instance for tracking
         """
         self.result = result
-        self.current_test = None
+        self.current_test: Optional[str] = None
 
     def start_test(self, test_name: str) -> None:
         """
