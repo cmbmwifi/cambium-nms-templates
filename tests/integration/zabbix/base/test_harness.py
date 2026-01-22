@@ -7,6 +7,7 @@ test execution using extracted helper components.
 """
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
@@ -189,23 +190,35 @@ class LegacyTestMethods:
         """Test: Verify Zabbix Docker services are running."""
         self.harness.print_colored("\nTest: Docker services health", Colors.BLUE)
 
-        # Check Zabbix containers
-        zabbix_server = self.harness.docker.get_container_name("zabbix-server")
-        zabbix_web = self.harness.docker.get_container_name("zabbix-web")
-        output = self.harness.docker.get_container_names("zabbix")
+        # Check Zabbix containers - just verify they exist individually
+        zabbix_server = self.harness.docker.get_container_name("server")
+        zabbix_web = self.harness.docker.get_container_name("web")
+
+        server_running = self.harness.docker.container_exists("server")
+        web_running = self.harness.docker.container_exists("web")
+
         self.harness.assertions.assert_true(
-            zabbix_server in output and zabbix_web in output,
+            server_running and web_running,
             "Zabbix containers are running",
-            output if zabbix_server not in output or zabbix_web not in output else ""
+            f"Server: {server_running}, Web: {web_running}"
         )
 
     def test_olt_data_retrieval(self) -> None:
         """Test: Retrieve data from mock OLTs using Python script."""
         self.harness.print_colored("\nTest: OLT data retrieval", Colors.BLUE)
 
-        script_path = "/root/cambium-nms-templates/templates/zabbix/cambium-fiber/cambium_olt_ssh_json.py"
+        # Ensure dependencies are installed in web container (must run as root)
+        container_name = self.harness.docker.get_container_name("web")
+        install_result = subprocess.run(
+            ["docker", "exec", "--user", "root", container_name,
+             "sh", "-c", "apk add --no-cache python3 sshpass openssh-client 2>&1 || true"],
+            capture_output=True,
+            text=True
+        )
+
+        script_path = "/opt/cambium-nms-templates/templates/zabbix/cambium-fiber/cambium_olt_ssh_json.py"
         exit_code, output = self.harness.docker.exec_command(
-            "installer-test",
+            "web",
             ["python3", script_path, self.harness.mock_olt_1, self.harness.olt_password]
         )
 
@@ -300,7 +313,7 @@ class LegacyTestMethods:
         self.harness.print_colored("\nTest: External scripts volume", Colors.BLUE)
 
         exit_code, output = self.harness.docker.exec_command(
-            "zabbix-server",
+            "server",
             ["ls", "-la", "/usr/lib/zabbix/externalscripts"]
         )
 

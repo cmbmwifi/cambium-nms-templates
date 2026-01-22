@@ -90,14 +90,20 @@ class ZabbixTestBase:
         """Version-specific docker-compose file path."""
         return self.harness.docker.compose_version
 
-    def setup(self):
-        """Start Docker Compose stack"""
-        self.harness.setup()
+    def setup(self, skip_if_running: bool = False):
+        """Start Docker Compose stack
+
+        Args:
+            skip_if_running: If True, skip startup if containers are already running
+        """
+        self.harness.setup(skip_if_running=skip_if_running)
         # Sync api_token back for compatibility
         self.api_token = self.harness.api_token
 
     def teardown(self):
         """Stop and remove Docker Compose stack"""
+        # Drop database to free memory before teardown
+        self.harness.docker.drop_database()
         self.harness.teardown()
 
     def assert_test(self, condition: bool, test_name: str, error_msg: str = ""):
@@ -209,13 +215,12 @@ class ZabbixTestBase:
         """Verify template files exist in mounted volume"""
         self._print_colored("  Verifying template files in container...", Colors.BLUE)
 
-        if "installer-test" not in self._docker_ps_names("installer-test"):
-            raise RuntimeError("installer-test container is not running")
+        web_container = self.harness.docker.get_container_name("web")
 
         # Verify template directory exists
         exit_code, output = self._docker_exec(
-            "installer-test",
-            ["test", "-d", "/root/cambium-nms-templates/templates/zabbix/cambium-fiber"]
+            "web",
+            ["test", "-d", "/opt/cambium-nms-templates/templates/zabbix/cambium-fiber"]
         )
         if exit_code != 0:
             raise RuntimeError("Template directory not found in container (volume mount failed?)")
@@ -224,16 +229,16 @@ class ZabbixTestBase:
         required_files = ["template.yaml", "cambium_olt_ssh_json.py"]
         for file in required_files:
             exit_code, output = self._docker_exec(
-                "installer-test",
-                ["test", "-f", f"/root/cambium-nms-templates/templates/zabbix/cambium-fiber/{file}"]
+                "web",
+                ["test", "-f", f"/opt/cambium-nms-templates/templates/zabbix/cambium-fiber/{file}"]
             )
             if exit_code != 0:
                 raise RuntimeError(f"Required file not found: {file}")
 
         # Verify install.sh exists
         exit_code, output = self._docker_exec(
-            "installer-test",
-            ["test", "-f", "/root/cambium-nms-templates/install.sh"]
+            "web",
+            ["test", "-f", "/opt/cambium-nms-templates/install.sh"]
         )
         if exit_code != 0:
             raise RuntimeError("install.sh not found in container")
@@ -268,7 +273,7 @@ class ZabbixTestBase:
         """Verify external script was deployed"""
         self._print_colored("  Verifying script deployment...", Colors.BLUE)
         exit_code, output = self._docker_exec(
-            "zabbix-server",
+            "server",
             ["test", "-x", "/usr/lib/zabbix/externalscripts/cambium_olt_ssh_json.py"]
         )
 
@@ -296,21 +301,29 @@ class ZabbixTestBase:
         try:
             self._print_colored("  Running install.sh in non-interactive mode...", Colors.BLUE)
 
-            installer_zabbix_url = "http://zabbix-web:8080"
+            # Get the web container name
+            web_container = self.harness.docker.get_container_name("web")
 
-            # Get the actual container name with project prefix
-            installer_container = self.harness.docker.get_container_name("installer-test")
+            # Install dependencies needed by install.sh (run as root)
+            self._print_colored("  Installing dependencies in web container...", Colors.BLUE)
+            deps_exit, deps_output = self.run_command([
+                "docker", "exec", "--user", "root", web_container,
+                "sh", "-c",
+                "apk add --no-cache python3 py3-yaml sshpass openssh-client bash 2>&1"
+            ])
+            if deps_exit != 0:
+                self._print_colored(f"    Warning: Could not install all dependencies: {deps_output[:200]}", Colors.YELLOW)
 
             exit_code, output = self.run_command([
-                "docker", "exec",
-                "-e", f"ZABBIX_API_URL={installer_zabbix_url}",
+                "docker", "exec", "--user", "root",
+                "-e", f"ZABBIX_API_URL=http://localhost:8080",
                 "-e", f"ZABBIX_API_TOKEN={self.api_token}",
                 "-e", f"OLT_PASSWORD={self.olt_password}",
                 "-e", f"ADD_HOSTS=true",
                 "-e", f"OLT_IPS={self.mock_olt_1},{self.mock_olt_2}",
-                installer_container,
+                web_container,
                 "/bin/bash", "-c",
-                "cd /root/cambium-nms-templates && ./install.sh --local"
+                "cd /opt/cambium-nms-templates && ./install.sh --local"
             ])
 
             print(f"{Colors.YELLOW}  Installer output:{Colors.NC}")

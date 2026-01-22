@@ -1,7 +1,7 @@
 version: '3.8'
 
 # Test infrastructure: Mock OLT devices
-# Shared across all Zabbix integration tests
+# Shared across all NMS integration tests (Zabbix, LibreNMS, etc.)
 
 networks:
   test-network:
@@ -10,9 +10,10 @@ networks:
 
 services:
   # Mock OLT devices (shared by all tests)
-  mock-olt-1:
+  olt1:
+    container_name: mock-olt-1
     build:
-      context: ../mock-olt
+      context: .
       dockerfile: Dockerfile
     hostname: olt-building-a
     networks:
@@ -21,18 +22,23 @@ services:
     ports:
       - "2222:22"
     volumes:
-      - ../../fixtures:/app/fixtures:ro
+      - ./olt-sample-output.json:/app/fixtures/olt-sample-output.json:ro
+    tmpfs:
+      # Python and temp files in RAM
+      - /tmp:rw,size=64M
+      - /root/.cache:rw,size=32M
     environment:
       - OLT_NAME=OLT-Building-A
     healthcheck:
       test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 22))"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      interval: 1s
+      timeout: 2s
+      retries: 30
 
-  mock-olt-2:
+  olt2:
+    container_name: mock-olt-2
     build:
-      context: ../mock-olt
+      context: .
       dockerfile: Dockerfile
     hostname: olt-building-b
     networks:
@@ -41,11 +47,15 @@ services:
     ports:
       - "2223:22"
     volumes:
-      - ../../fixtures:/app/fixtures:ro
+      - ./olt-sample-output.json:/app/fixtures/olt-sample-output.json:ro
+    tmpfs:
+      # Python and temp files in RAM
+      - /tmp:rw,size=64M
+      - /root/.cache:rw,size=32M
     environment:
       - OLT_NAME=OLT-Building-B
     healthcheck:
       test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 22))"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      interval: 3s
+      timeout: 2s
+      retries: 10

@@ -1,5 +1,39 @@
 # Testing Guide
 
+## Testing Approaches
+
+### Automated Testing (Recommended for Development)
+
+Use the containerized test suite for development and validation:
+```bash
+# Run all tests
+./tests/run_all.sh
+
+# Run just integration tests
+./tests/integration/run_all_zabbix_tests.sh
+```
+
+**Why containerized tests:**
+- ✅ Works on any development machine
+- ✅ No Zabbix installation required
+- ✅ Tests against multiple Zabbix versions (7.0, 7.2, 7.4, 8.0)
+- ✅ Isolated Docker environments ensure reproducibility
+- ✅ Same tests that run in CI/CD
+
+### Manual Smoke Testing (Requires Live Zabbix Server)
+
+If you have access to a live Zabbix server, you can manually test the installer:
+```bash
+./install.sh --local
+```
+
+**Requirements:**
+- Running Zabbix server (not required on development machine)
+- SSH access to the Zabbix server
+- Root/sudo privileges on the Zabbix server
+
+**Note:** Most developers should use the automated containerized tests instead. Use `--local` only when you need to verify installer behavior on a real Zabbix instance.
+
 ## Test Structure
 
 The project uses a hierarchical test organization with two main categories:
@@ -101,13 +135,16 @@ This allows:
 
 ### Development Workflow
 
-Run what you're working on:
+Use containerized tests during development (no Zabbix installation needed):
 ```bash
-# Working on Zabbix 7.0 template
+# Working on Zabbix templates - test against specific version
 ./tests/integration/zabbix/test_zabbix70.py
 
 # Working on installer menu
 ./tests/integration/installer/test_installer_menu.py
+
+# Test all Zabbix versions
+./tests/integration/run_all_zabbix_tests.sh
 ```
 
 ### Pre-Commit Validation
@@ -117,9 +154,24 @@ Before pushing changes, run the full suite:
 ./tests/run_all.sh
 ```
 
-### Debugging
+### Debugging and Manual Testing
 
-Keep test environment running for manual inspection:
+For quick manual testing without running full test suites, use the smoke test helper:
+
+```bash
+# Start a Zabbix environment for manual exploration
+./scripts/smoketest.sh zabbix74
+
+# Start fresh (clean database)
+./scripts/smoketest.sh --clean zabbix70
+
+# Stop all smoke test environments
+./scripts/smoketest.sh --halt
+```
+
+This keeps the environment running so you can access the GUI, run the installer manually, and explore templates interactively. See `./scripts/smoketest.sh --help` for details.
+
+**Alternative - Keep test environment running:**
 ```bash
 ./tests/integration/zabbix/test_zabbix70.py --keep-running
 ```

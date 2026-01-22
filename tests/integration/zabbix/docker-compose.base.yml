@@ -11,7 +11,7 @@ networks:
 
 services:
   # Zabbix Server (version and database set in override)
-  zabbix-server:
+  server:
     # image: set in override file (e.g., zabbix/zabbix-server-mysql:alpine-7.0-latest)
     networks:
       - test-network
@@ -28,16 +28,20 @@ services:
       ZBX_VALUECACHESIZE: 16M
     volumes:
       - zabbix-scripts:/usr/lib/zabbix/externalscripts
-      - ../../:/opt/cambium-nms-templates:ro
+      - ../../../:/opt/cambium-nms-templates:ro
+    tmpfs:
+      # Zabbix server temp files and module data in RAM
+      - /tmp:rw,size=256M
+      - /var/lib/zabbix:rw,size=128M
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "10051"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
+      test: ["CMD", "pidof", "zabbix_server"]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+
 
   # Zabbix Web Interface (version and database set in override)
-  zabbix-web:
+  web:
     # image: set in override file (e.g., zabbix/zabbix-web-nginx-mysql:alpine-7.0-latest)
     networks:
       - test-network
@@ -46,32 +50,23 @@ services:
       # MYSQL_DATABASE: set in override file (e.g., zabbix70)
       MYSQL_USER: root
       MYSQL_PASSWORD: root_pass
-      ZBX_SERVER_HOST: zabbix-server
+      ZBX_SERVER_HOST: server
       PHP_TZ: America/Chicago
+    volumes:
+      - zabbix-scripts:/usr/lib/zabbix/externalscripts
+      - ../../../:/opt/cambium-nms-templates:ro
+    tmpfs:
+      # Nginx/PHP temp files in RAM
+      - /tmp:rw,size=256M
+      - /var/cache/nginx:rw,size=128M
     depends_on:
-      zabbix-server:
+      server:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Installer test container
-  installer-test:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      - test-network
-    volumes:
-      - ../../../:/root/cambium-nms-templates:ro
-      - zabbix-scripts:/usr/lib/zabbix/externalscripts
-    working_dir: /root/cambium-nms-templates
-    command: tail -f /dev/null
-    depends_on:
-      - zabbix-server
-      - zabbix-web
+      interval: 1s
+      timeout: 1s
+      retries: 30
 
 volumes:
   zabbix-scripts:

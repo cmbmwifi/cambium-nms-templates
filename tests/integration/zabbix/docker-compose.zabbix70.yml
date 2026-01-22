@@ -2,7 +2,7 @@ version: '3.8'
 
 # Zabbix 7.0 LTS specific configuration
 services:
-  zabbix-server:
+  server:
     image: zabbix/zabbix-server-mysql:alpine-7.0-latest
     environment:
       MYSQL_DATABASE: zabbix70
@@ -12,7 +12,7 @@ services:
     ports:
       - "10051:10051"  # Zabbix 7.0 server port
 
-  zabbix-web:
+  web:
     image: zabbix/zabbix-web-nginx-mysql:alpine-7.0-latest
     environment:
       MYSQL_DATABASE: zabbix70
@@ -21,7 +21,3 @@ services:
         ipv4_address: 172.20.0.31
     ports:
       - "8080:8080"    # Zabbix 7.0 web interface
-
-  installer-test:
-    networks:
-      test-network:

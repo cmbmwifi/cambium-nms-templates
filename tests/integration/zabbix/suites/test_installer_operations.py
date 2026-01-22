@@ -33,27 +33,31 @@ class InstallerOperationsTests:
 
     def run_installer_with_env(self, env_vars: dict) -> tuple[int, str]:
         """Run installer with environment variables inside Docker container"""
-        # Use internal Zabbix URL (from inside Docker network)
-        installer_zabbix_url = "http://zabbix-web:8080"
-
         env = {
-            "ZABBIX_API_URL": installer_zabbix_url,
+            "ZABBIX_API_URL": "http://localhost:8080",
             "ZABBIX_API_TOKEN": self.harness.api_token or "",
             "OLT_PASSWORD": self.harness.olt_password,
             **env_vars
         }
 
-        # Get the installer container name
-        installer_container = self.harness.docker.get_container_name("installer-test")
+        # Get the web container name
+        web_container = self.harness.docker.get_container_name("web")
 
-        # Build docker exec command with environment variables
-        cmd = ["docker", "exec"]
+        # Install dependencies (idempotent - safe to run multiple times, run as root)
+        subprocess.run(
+            ["docker", "exec", "--user", "root", web_container, "sh", "-c",
+             "apk add --no-cache python3 py3-yaml sshpass openssh-client bash 2>/dev/null || true"],
+            capture_output=True
+        )
+
+        # Build docker exec command with environment variables (run as root)
+        cmd = ["docker", "exec", "--user", "root"]
         for key, value in env.items():
             cmd.extend(["-e", f"{key}={value}"])
         cmd.extend([
-            installer_container,
+            web_container,
             "/bin/bash", "-c",
-            "cd /root/cambium-nms-templates && ./install.sh --local"
+            "cd /opt/cambium-nms-templates && ./install.sh --local"
         ])
 
         result = subprocess.run(

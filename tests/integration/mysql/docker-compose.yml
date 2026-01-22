@@ -10,8 +10,8 @@ networks:
 
 services:
   mysql:
+    container_name: mysql-1
     image: mysql:8.0
-    container_name: test-mysql
     networks:
       test-network:
         ipv4_address: 172.20.0.20
@@ -22,14 +22,23 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_bin
       - --default-authentication-plugin=mysql_native_password
-      - --innodb-buffer-pool-size=256M
+      - --innodb-buffer-pool-size=768M
       - --innodb-log-file-size=128M
       - --innodb-flush-log-at-trx-commit=2
-      - --innodb-flush-method=O_DIRECT
-    # No volume mount - databases are non-persistent for clean test isolation
-    # Each test recreates its database, no storage accumulation
+      # Performance optimizations for test environments (speed over durability)
+      - --skip-log-bin
+      - --innodb-flush-method=O_DIRECT_NO_FSYNC
+      - --innodb-doublewrite=0
+      - --sync-binlog=0
+      - --innodb-use-native-aio=1
+      - --performance-schema=0
+    tmpfs:
+      - /var/lib/mysql:rw,size=2G
+      - /tmp:rw,size=256M
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot_pass"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "mysql", "-uroot", "-proot_pass", "-e", "SELECT 1"]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 1s
+

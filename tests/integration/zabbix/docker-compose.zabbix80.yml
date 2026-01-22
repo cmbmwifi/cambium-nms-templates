@@ -2,7 +2,7 @@ version: '3.8'
 
 # Zabbix 8.0 specific configuration (using trunk/development version)
 services:
-  zabbix-server:
+  server:
     image: zabbix/zabbix-server-mysql:alpine-trunk
     environment:
       MYSQL_DATABASE: zabbix80
@@ -12,7 +12,7 @@ services:
     ports:
       - "10054:10051"  # Zabbix 8.0 server port
 
-  zabbix-web:
+  web:
     image: zabbix/zabbix-web-nginx-mysql:alpine-trunk
     environment:
       MYSQL_DATABASE: zabbix80
@@ -22,6 +22,3 @@ services:
     ports:
       - "8083:8080"    # Zabbix 8.0 web interface
 
-  installer-test:
-    networks:
-      test-network:

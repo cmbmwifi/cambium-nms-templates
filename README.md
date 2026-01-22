@@ -35,8 +35,6 @@ The interactive menu will guide you through installing the template.
 - curl to run the installer
 - Python 3.8+ (for external scripts)
 
-**Note:** In Proxmox LXC containers, you typically run as root by default.
-
 ## Support and Disclaimer
 
 This project is **built by Cambium Networks engineers** as a best-effort

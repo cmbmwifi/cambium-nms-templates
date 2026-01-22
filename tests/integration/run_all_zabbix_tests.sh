@@ -18,45 +18,14 @@ echo "Started: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================"
 echo ""
 
-# Ensure test infrastructure is running
-echo "Ensuring test infrastructure (MySQL, Mock OLTs)..."
-cd "$ZABBIX_DIR"
-docker network create --subnet=172.20.0.0/16 zabbix-shared-network 2>/dev/null || true
-
-# Check if MySQL and Mock OLTs are already running
-if docker ps --filter "name=test-mysql" --filter "status=running" --format "{{.Names}}" 2>/dev/null | grep -q "test-mysql"; then
-    MYSQL_RUNNING=1
-else
-    MYSQL_RUNNING=0
-fi
-
-MOCK_OLTS_RUNNING=$(docker ps --filter "name=zabbix-mock-olt" --filter "status=running" --format "{{.Names}}" 2>/dev/null | wc -l)
-
-if [ "$MYSQL_RUNNING" -gt "0" ] && [ "$MOCK_OLTS_RUNNING" -ge "2" ]; then
-    echo "✓ Test infrastructure already running"
-    INFRASTRUCTURE_STARTED=0
-else
-    echo "Starting test infrastructure..."
-    INFRASTRUCTURE_STARTED=1
-
-    # Start MySQL if not running
-    if [ "$MYSQL_RUNNING" -eq "0" ]; then
-        echo "  Starting MySQL..."
-        cd "$SCRIPT_DIR/mysql"
-        docker-compose up -d
-        sleep 5
-    fi
-
-    # Start Mock OLTs if not running (need both containers)
-    if [ "$MOCK_OLTS_RUNNING" -lt "2" ]; then
-        echo "  Starting Mock OLTs..."
-        cd "$ZABBIX_DIR"
-        docker-compose -f docker-compose.mock-olts.yml up -d
-    fi
-
-    echo "Waiting for test services to be ready..."
-    sleep 10
-    echo "✓ Test infrastructure ready"
+# Start infrastructure and Zabbix environments
+# - ensure-infrastructure.sh starts MySQL and Mock OLTs
+# - manage-zabbix-environments.sh starts 7.0 (blocking), then 7.2 and 7.4 in background
+# - This allows tests to start on 7.0 immediately while 7.2 and 7.4 finish warming up
+if ! "$SCRIPT_DIR/manage-zabbix-environments.sh"; then
+    echo "Failed to start Zabbix environments"
+    "$SCRIPT_DIR/manage-zabbix-environments.sh" --down 2>/dev/null || true
+    exit 1
 fi
 echo ""
 
@@ -71,7 +40,7 @@ TEST_70_START=$(date +%s)
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Running Zabbix 7.0 tests..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if "$ZABBIX_DIR/test_zabbix70.py"; then
+if "$ZABBIX_DIR/test_zabbix70.py" --skip-startup --keep; then
     TEST_70_END=$(date +%s)
     TEST_70_DURATION=$((TEST_70_END - TEST_70_START))
     echo "✓ Zabbix 7.0: PASSED (${TEST_70_DURATION}s)"
@@ -88,7 +57,7 @@ TEST_72_START=$(date +%s)
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Running Zabbix 7.2 tests..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if "$ZABBIX_DIR/test_zabbix72.py"; then
+if "$ZABBIX_DIR/test_zabbix72.py" --skip-startup --keep; then
     TEST_72_END=$(date +%s)
     TEST_72_DURATION=$((TEST_72_END - TEST_72_START))
     echo "✓ Zabbix 7.2: PASSED (${TEST_72_DURATION}s)"
@@ -105,7 +74,7 @@ TEST_74_START=$(date +%s)
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Running Zabbix 7.4 tests..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if "$ZABBIX_DIR/test_zabbix74.py"; then
+if "$ZABBIX_DIR/test_zabbix74.py" --skip-startup --keep; then
     TEST_74_END=$(date +%s)
     TEST_74_DURATION=$((TEST_74_END - TEST_74_START))
     echo "✓ Zabbix 7.4: PASSED (${TEST_74_DURATION}s)"
@@ -140,8 +109,8 @@ echo ""
 
 # Note: Test infrastructure (MySQL, Mock OLTs) left running for next test
 # To clean up manually:
-#   cd tests/integration/mysql && docker-compose down
-#   cd tests/integration/zabbix && docker-compose -f docker-compose.mock-olts.yml down
+#   cd tests/integration/mysql && docker-compose down -v
+#   cd tests/integration/mock-olt && docker-compose down -v
 
 END_TIME=$(date +%s)
 TOTAL_DURATION=$((END_TIME - START_TIME))
@@ -189,16 +158,11 @@ echo "Total time:    ${TOTAL_DURATION}s"
 echo "Finished: $(date '+%Y-%m-%d %H:%M:%S')"
 echo ""
 
-# Clean up test infrastructure if we started it
-if [ "$INFRASTRUCTURE_STARTED" -eq "1" ]; then
-    echo "Cleaning up test infrastructure (we started it)..."
-    cd "$ZABBIX_DIR"
-    docker-compose -f docker-compose.mock-olts.yml down
-    cd "$SCRIPT_DIR/mysql"
-    docker-compose down
-    echo "✓ Test infrastructure stopped"
-    echo ""
-fi
+# Stop all Zabbix environments in parallel
+"$SCRIPT_DIR/manage-zabbix-environments.sh" --down
+
+# Clean up test infrastructure
+"$SCRIPT_DIR/ensure-infrastructure.sh" --down
 
 # Overall result
 if [ $RESULT_70 -eq 0 ] && [ $RESULT_72 -eq 0 ] && [ $RESULT_74 -eq 0 ]; then

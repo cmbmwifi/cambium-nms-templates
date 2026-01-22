@@ -24,6 +24,11 @@ class Colors:
 class DockerManager:
     """Manages Docker Compose stacks and container operations."""
 
+    # Infrastructure container names (shared across all tests)
+    MYSQL_CONTAINER = "mysql-1"
+    MOCK_OLT_1 = "mock-olt-1"
+    MOCK_OLT_2 = "mock-olt-2"
+
     def __init__(self, test_dir: Path, compose_base: Path, compose_version: Path, project_name: Optional[str] = None, database_name: Optional[str] = None):
         """
         Initialize Docker manager.
@@ -90,18 +95,20 @@ class DockerManager:
             Tuple of (mysql_running, mock_olts_running)
         """
         mysql_check = subprocess.run(
-            ["docker", "ps", "--filter", "name=test-mysql", "--filter", "status=running", "--format", "{{.Names}}"],
+            ["docker", "ps", "--filter", f"name={self.MYSQL_CONTAINER}", "--filter", "status=running", "--format", "{{.Names}}"],
             capture_output=True,
             text=True
         )
-        mysql_running = "test-mysql" in mysql_check.stdout
+        mysql_running = self.MYSQL_CONTAINER in mysql_check.stdout
 
+        # Check for both mock OLT containers
         olt_check = subprocess.run(
-            ["docker", "ps", "--filter", "name=zabbix-mock-olt", "--filter", "status=running", "--format", "{{.Names}}"],
+            ["docker", "ps", "--filter", "name=mock-olt", "--filter", "status=running", "--format", "{{.Names}}"],
             capture_output=True,
             text=True
         )
-        mock_olts_running = "zabbix-mock-olt" in olt_check.stdout
+        # Both mock-olt-1 and mock-olt-2 should be running
+        mock_olts_running = "mock-olt-1" in olt_check.stdout and "mock-olt-2" in olt_check.stdout
 
         return mysql_running, mock_olts_running
 
@@ -120,7 +127,7 @@ class DockerManager:
         for attempt in range(max_retries):
             result = subprocess.run(
                 [
-                    "docker", "exec", "test-mysql",
+                    "docker", "exec", self.MYSQL_CONTAINER,
                     "mysql", "-uroot", "-proot_pass", "-e",
                     f"DROP DATABASE IF EXISTS {self.database_name}; "
                     f"CREATE DATABASE {self.database_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;"
@@ -137,6 +144,32 @@ class DockerManager:
 
         raise RuntimeError(f"Failed to recreate database after {max_retries} attempts: {result.stderr}")
 
+    def drop_database(self) -> None:
+        """
+        Drop this test's database to free memory.
+        Called at end of each test to prevent memory accumulation.
+        """
+        # Check if MySQL is running
+        mysql_check = subprocess.run(
+            ["docker", "ps", "--filter", f"name={self.MYSQL_CONTAINER}", "--filter", "status=running", "--format", "{{.Names}}"],
+            capture_output=True,
+            text=True
+        )
+        if self.MYSQL_CONTAINER not in mysql_check.stdout:
+            return  # MySQL not running, nothing to drop
+
+        result = subprocess.run(
+            [
+                "docker", "exec", self.MYSQL_CONTAINER,
+                "mysql", "-uroot", "-proot_pass", "-e",
+                f"DROP DATABASE IF EXISTS {self.database_name};"
+            ],
+            capture_output=True,
+            text=True
+        )
+        if result.returncode == 0:
+            print(f"{Colors.GREEN}✓ Database '{self.database_name}' dropped (memory freed){Colors.NC}")
+
     def _drop_all_test_databases(self) -> None:
         """
         Drop all Zabbix test databases (zabbix70, zabbix72, zabbix74).
@@ -144,25 +177,25 @@ class DockerManager:
         """
         # Check if MySQL is running
         mysql_check = subprocess.run(
-            ["docker", "ps", "--filter", "name=test-mysql", "--filter", "status=running", "--format", "{{.Names}}"],
+            ["docker", "ps", "--filter", f"name={self.MYSQL_CONTAINER}", "--filter", "status=running", "--format", "{{.Names}}"],
             capture_output=True,
             text=True
         )
-        if "test-mysql" not in mysql_check.stdout:
+        if self.MYSQL_CONTAINER not in mysql_check.stdout:
             return  # MySQL not running, nothing to clean
 
-        print(f"{Colors.YELLOW}Dropping test databases...{Colors.NC}")
+        print(f"{Colors.YELLOW}Dropping all test databases...{Colors.NC}")
         for db in ["zabbix70", "zabbix72", "zabbix74", "zabbix80"]:
             subprocess.run(
                 [
-                    "docker", "exec", "test-mysql",
+                    "docker", "exec", "mysql-1",
                     "mysql", "-uroot", "-proot_pass", "-e",
                     f"DROP DATABASE IF EXISTS {db};"
                 ],
                 capture_output=True,
                 text=True
             )
-        print(f"{Colors.GREEN}✓ Test databases dropped{Colors.NC}")
+        print(f"{Colors.GREEN}✓ All test databases dropped{Colors.NC}")
 
     def _ensure_test_infrastructure(self) -> tuple[bool, bool]:
         """
@@ -175,43 +208,66 @@ class DockerManager:
         started_mysql = False
         started_mock_olts = False
 
-        # Start MySQL if not running
+        # Start both MySQL and Mock OLTs in parallel (no dependencies between them)
+        processes = []
+
         if not mysql_running:
             print(f"{Colors.YELLOW}Starting MySQL test infrastructure...{Colors.NC}")
             mysql_compose = self.test_dir.parent / "mysql" / "docker-compose.yml"
-            result = subprocess.run(
-                ["docker-compose", "-f", str(mysql_compose), "up", "-d"],
-                capture_output=True,
+            mysql_proc = subprocess.Popen(
+                ["docker-compose", "-f", str(mysql_compose), "-p", "infrastructure", "up", "-d"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True
             )
-            if result.returncode != 0:
-                raise RuntimeError(f"Failed to start MySQL: {result.stderr}")
+            processes.append(("MySQL", mysql_proc))
             started_mysql = True
-            time.sleep(5)
-            print(f"{Colors.GREEN}✓ MySQL ready{Colors.NC}")
         else:
             print(f"{Colors.GREEN}✓ MySQL already running{Colors.NC}")
+            # MySQL already running - we still need to wait for it to be healthy
+            started_mysql = False  # We didn't start it, but need to wait for it
 
-        # Start Mock OLTs if not running
         if not mock_olts_running:
             print(f"{Colors.YELLOW}Starting Mock OLT test infrastructure...{Colors.NC}")
-            olt_compose = self.test_dir / "docker-compose.mock-olts.yml"
-            result = subprocess.run(
-                ["docker-compose", "-f", str(olt_compose), "up", "-d"],
-                capture_output=True,
+            olt_compose = self.test_dir.parent / "mock-olt" / "docker-compose.yml"
+            olt_proc = subprocess.Popen(
+                ["docker-compose", "-f", str(olt_compose), "-p", "infrastructure", "up", "-d"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True
             )
-            if result.returncode != 0:
-                raise RuntimeError(f"Failed to start Mock OLTs: {result.stderr}")
+            processes.append(("Mock OLTs", olt_proc))
             started_mock_olts = True
-            time.sleep(5)
-            print(f"{Colors.GREEN}✓ Mock OLTs ready{Colors.NC}")
         else:
             print(f"{Colors.GREEN}✓ Mock OLTs already running{Colors.NC}")
 
+        # Wait for all processes to complete
+        for name, proc in processes:
+            stdout, stderr = proc.communicate()
+            if proc.returncode != 0:
+                raise RuntimeError(f"Failed to start {name}: {stderr}")
+            print(f"{Colors.GREEN}✓ {name} ready{Colors.NC}")
+
+        # Always wait for MySQL to be healthy before proceeding (whether we started it or not)
+        if mysql_running or started_mysql:
+            print(f"{Colors.YELLOW}Waiting for MySQL to be healthy...{Colors.NC}")
+            max_wait = 30
+            for attempt in range(max_wait):
+                health_result = subprocess.run(
+                    ["docker", "inspect", "--format={{.State.Health.Status}}", self.MYSQL_CONTAINER],
+                    capture_output=True,
+                    text=True
+                )
+                if health_result.returncode == 0 and "healthy" in health_result.stdout:
+                    print(f"{Colors.GREEN}✓ MySQL healthy{Colors.NC}")
+                    break
+                time.sleep(1)
+            else:
+                raise RuntimeError("MySQL did not become healthy in time")
+
         return started_mysql, started_mock_olts
 
-    def compose_up(self, timeout_seconds: int = 120, skip_if_running: bool = False) -> None:
+    def compose_up(self, timeout_seconds: int = 60, skip_if_running: bool = False) -> None:
         """
         Start Docker Compose stack and wait for services to be healthy.
 
@@ -236,11 +292,48 @@ class DockerManager:
         # Store what we started so we can clean up appropriately
         self.started_mysql, self.started_mock_olts = self._ensure_test_infrastructure()
 
-        # Recreate database for clean slate (test isolation)
-        self._recreate_database()
+        # Only clean up existing containers if we're doing a fresh start
+        if not skip_if_running:
+            # Clean up any existing containers for this version first
+            self._docker_compose("down", ["-v"])
 
-        # Clean up any existing containers for this version
-        self._docker_compose("down", ["-v"])
+        # Wait for MySQL to be fully healthy only if we just started it
+        # (If it was already running, ensure-infrastructure.sh already verified health)
+        if self.started_mysql:
+            print(f"{Colors.YELLOW}Waiting for MySQL to be healthy...{Colors.NC}")
+            max_retries = 60  # 60 seconds should be plenty
+            for attempt in range(max_retries):
+                # Check Docker healthcheck status
+                health_result = subprocess.run(
+                    ["docker", "inspect", "--format={{.State.Health.Status}}", self.MYSQL_CONTAINER],
+                    capture_output=True,
+                    text=True
+                )
+                if health_result.returncode == 0 and "healthy" in health_result.stdout:
+                    print(f"{Colors.GREEN}✓ MySQL healthy{Colors.NC}")
+                    break
+                if attempt < max_retries - 1:
+                    time.sleep(1)
+            else:
+                raise RuntimeError("MySQL did not become healthy in time")
+
+        # Recreate database for clean slate
+        print(f"{Colors.YELLOW}Recreating database '{self.database_name}'...{Colors.NC}")
+
+        # Now recreate the database
+        db_result = subprocess.run(
+            [
+                "docker", "exec", self.MYSQL_CONTAINER,
+                "mysql", "-uroot", "-proot_pass", "-e",
+                f"DROP DATABASE IF EXISTS {self.database_name}; "
+                f"CREATE DATABASE {self.database_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;"
+            ],
+            capture_output=True,
+            text=True
+        )
+        if db_result.returncode != 0:
+            raise RuntimeError(f"Failed to recreate database: {db_result.stderr}")
+        print(f"{Colors.GREEN}✓ Database '{self.database_name}' recreated{Colors.NC}")
 
         # Start services
         startup_result = self._docker_compose("up", ["-d"])
@@ -253,10 +346,9 @@ class DockerManager:
         while time.time() - start_time < timeout_seconds:
             if self._check_all_healthy():
                 print(f"{Colors.GREEN}✓ All services are healthy{Colors.NC}")
-                time.sleep(5)  # Stabilization delay
                 return
 
-            time.sleep(5)
+            time.sleep(2)  # Check every 2s instead of 5s
 
         raise RuntimeError("Timeout waiting for services to be healthy")
 
@@ -270,8 +362,8 @@ class DockerManager:
         if self.started_mock_olts:
             print(f"{Colors.YELLOW}Stopping Mock OLTs (we started them)...{Colors.NC}")
             subprocess.run(
-                ["docker", "compose", "-f", self.test_dir / "docker-compose.mock-olts.yml", "down"],
-                cwd=self.test_dir,
+                ["docker", "compose", "-f", str(self.test_dir.parent / "mock-olt" / "docker-compose.yml"), "-p", "infrastructure", "down", "-v"],
+                cwd=self.test_dir.parent / "mock-olt",
                 check=True
             )
 
@@ -281,7 +373,7 @@ class DockerManager:
             self._drop_all_test_databases()
             print(f"{Colors.YELLOW}Stopping MySQL (we started it)...{Colors.NC}")
             subprocess.run(
-                ["docker", "compose", "-f", self.test_dir.parent / "mysql" / "docker-compose.yml", "down"],
+                ["docker", "compose", "-f", str(self.test_dir.parent / "mysql" / "docker-compose.yml"), "-p", "infrastructure", "down", "-v"],
                 cwd=self.test_dir.parent / "mysql",
                 check=True
             )
@@ -433,7 +525,7 @@ class DockerManager:
         healthy = result.stdout
         # Mock OLTs are managed separately and shared by all test versions
         # Only check for project-specific containers
-        required_services = ["zabbix-server", "zabbix-web"]
+        required_services = ["server", "web"]
         # Convert service names to actual container names
         required_containers = [self.get_container_name(svc) for svc in required_services]
         return all(container in healthy for container in required_containers)

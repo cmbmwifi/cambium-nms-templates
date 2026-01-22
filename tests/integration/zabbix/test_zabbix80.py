@@ -16,7 +16,7 @@ class Zabbix80Test(ZabbixTestBase):
         super().__init__(
             version="8.0",
             compose_version_file="docker-compose.zabbix80.yml",
-            project_name="zabbix-test-80"
+            project_name="zabbix_8_0"
         )
 
 

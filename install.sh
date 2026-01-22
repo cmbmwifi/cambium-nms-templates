@@ -215,7 +215,16 @@ trap cleanup_temp_files EXIT
 
 # Determine base path based on mode
 if [ "$MODE" = "local" ]; then
-    BASE_PATH="$HOME/cambium-nms-templates"
+    # Detect if running from within the repository directory (e.g., in Docker tests)
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ -f "$SCRIPT_DIR/install.sh" ] && [ -d "$SCRIPT_DIR/templates" ]; then
+        # Running from repo root
+        BASE_PATH="$SCRIPT_DIR"
+    else
+        # Default: use ~/cambium-nms-templates
+        BASE_PATH="$HOME/cambium-nms-templates"
+    fi
+
     yellow 'Development mode: Using local files'
     echo "Base path: $BASE_PATH"
 
@@ -865,11 +874,15 @@ if [ ! -f "$SCRIPT_FILE" ]; then
 fi
 
 # Detect ExternalScripts directory
-EXTERNALSCRIPTS_DIR="/usr/lib/zabbix/externalscripts"
+# Allow override via environment variable for testing/Docker environments
+if [ -z "$EXTERNALSCRIPTS_DIR" ]; then
+    EXTERNALSCRIPTS_DIR="/usr/lib/zabbix/externalscripts"
+fi
 
 if [ ! -d "$EXTERNALSCRIPTS_DIR" ]; then
     red "✗ Error: ExternalScripts directory not found: $EXTERNALSCRIPTS_DIR"
     echo "  Please ensure Zabbix server is installed or create the directory"
+    echo "  Or set EXTERNALSCRIPTS_DIR environment variable to override the path"
     exit 1
 fi
 
