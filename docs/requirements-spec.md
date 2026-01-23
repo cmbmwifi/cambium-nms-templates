@@ -95,3 +95,5 @@ New NMS platforms, input types, or features can be added to the installer withou
 
 - Example: `templates/zabbix/cambium-fiber/requirements.yaml`
 - Implementation: `install.sh` (parsing and execution)
+- Development: [contributing.md](contributing.md) - Adding new templates and development workflow
+- Testing: [testing.md](testing.md) - Validating template requirements

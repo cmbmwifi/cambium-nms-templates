@@ -7,7 +7,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ZABBIX_DIR="$SCRIPT_DIR/zabbix"
+INTEGRATION_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Start timing
 START_TIME=$(date +%s)
@@ -22,9 +22,9 @@ echo ""
 # - ensure-infrastructure.sh starts MySQL and Mock OLTs
 # - manage-zabbix-environments.sh starts 7.0 (blocking), then 7.2 and 7.4 in background
 # - This allows tests to start on 7.0 immediately while 7.2 and 7.4 finish warming up
-if ! "$SCRIPT_DIR/manage-zabbix-environments.sh"; then
+if ! "$INTEGRATION_DIR/manage-zabbix-environments.sh"; then
     echo "Failed to start Zabbix environments"
-    "$SCRIPT_DIR/manage-zabbix-environments.sh" --down 2>/dev/null || true
+    "$INTEGRATION_DIR/manage-zabbix-environments.sh" --down 2>/dev/null || true
     exit 1
 fi
 echo ""
@@ -40,7 +40,7 @@ TEST_70_START=$(date +%s)
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Running Zabbix 7.0 tests..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if "$ZABBIX_DIR/test_zabbix70.py" --skip-startup --keep; then
+if "$SCRIPT_DIR/test_zabbix70.py" --skip-startup --keep; then
     TEST_70_END=$(date +%s)
     TEST_70_DURATION=$((TEST_70_END - TEST_70_START))
     echo "✓ Zabbix 7.0: PASSED (${TEST_70_DURATION}s)"
@@ -57,7 +57,7 @@ TEST_72_START=$(date +%s)
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Running Zabbix 7.2 tests..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if "$ZABBIX_DIR/test_zabbix72.py" --skip-startup --keep; then
+if "$SCRIPT_DIR/test_zabbix72.py" --skip-startup --keep; then
     TEST_72_END=$(date +%s)
     TEST_72_DURATION=$((TEST_72_END - TEST_72_START))
     echo "✓ Zabbix 7.2: PASSED (${TEST_72_DURATION}s)"
@@ -74,7 +74,7 @@ TEST_74_START=$(date +%s)
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Running Zabbix 7.4 tests..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if "$ZABBIX_DIR/test_zabbix74.py" --skip-startup --keep; then
+if "$SCRIPT_DIR/test_zabbix74.py" --skip-startup --keep; then
     TEST_74_END=$(date +%s)
     TEST_74_DURATION=$((TEST_74_END - TEST_74_START))
     echo "✓ Zabbix 7.4: PASSED (${TEST_74_DURATION}s)"
@@ -159,10 +159,10 @@ echo "Finished: $(date '+%Y-%m-%d %H:%M:%S')"
 echo ""
 
 # Stop all Zabbix environments in parallel
-"$SCRIPT_DIR/manage-zabbix-environments.sh" --down
+"$INTEGRATION_DIR/manage-zabbix-environments.sh" --down
 
 # Clean up test infrastructure
-"$SCRIPT_DIR/ensure-infrastructure.sh" --down
+"$INTEGRATION_DIR/ensure-infrastructure.sh" --down
 
 # Overall result
 if [ $RESULT_70 -eq 0 ] && [ $RESULT_72 -eq 0 ] && [ $RESULT_74 -eq 0 ]; then

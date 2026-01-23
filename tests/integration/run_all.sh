@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Run all tests
-# Discovers and executes all test suites (unit, integration, etc.)
+# Run all integration tests
+# Executes test suites for all NMS systems (Zabbix, installer, etc.)
 #
 
 set -e
@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 START_TIME=$(date +%s)
 
 echo "========================================"
-echo "Running All Tests"
+echo "Running All Integration Tests"
 echo "Started: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================"
 echo ""
@@ -73,9 +73,9 @@ echo "========================================"
 ALL_PASSED=true
 for suite in "${TEST_SUITES[@]}"; do
     if [ ${TEST_RESULTS[$suite]} -eq 0 ]; then
-        printf "✓ %-14s PASSED (%ss)\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
+        printf "✓ %-12s PASSED (%ss)\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
     else
-        printf "✗ %-14s FAILED (%ss)\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
+        printf "✗ %-12s FAILED (%ss)\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
         ALL_PASSED=false
     fi
 done
@@ -85,7 +85,7 @@ echo "========================================"
 echo "Timing Summary"
 echo "========================================"
 for suite in "${TEST_SUITES[@]}"; do
-    printf "%-16s %ss\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
+    printf "%-14s %ss\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
 done
 echo "────────────────────────────────────────"
 echo "Total time:    ${TOTAL_DURATION}s"
@@ -94,7 +94,7 @@ echo ""
 
 # Overall result
 if [ "$ALL_PASSED" = true ]; then
-    echo "All tests passed!"
+    echo "All integration tests passed!"
     exit 0
 else
     echo "Some tests failed."

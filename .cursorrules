@@ -1,0 +1,11 @@
+# Cursor AI Rules
+
+Before responding:
+
+1. Read `.agentic` at repo root
+2. Follow all directives in `.agentic`
+3. Prioritize `.agentic` + `docs/` over `README.md`
+
+`.agentic` is canonical. Any conflict resolves in its favor.
+
+Do not duplicate `.agentic` content here.

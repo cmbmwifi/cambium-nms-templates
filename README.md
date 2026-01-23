@@ -59,6 +59,8 @@ Use of this software is at your own discretion and risk.
 
 Contributions are welcome! See [docs/contributing.md](docs/contributing.md) for development setup and guidelines.
 
+**Using AI assistants?** This project includes `.agentic` configuration to help AI coding tools understand the codebase structure, conventions, and common workflows.
+
 ## License
 
 Apache License 2.0 - See [LICENSE](LICENSE) file for details.

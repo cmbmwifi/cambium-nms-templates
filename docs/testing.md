@@ -6,11 +6,15 @@
 
 Use the containerized test suite for development and validation:
 ```bash
-# Run all tests
+# Run all tests (unit + integration)
 ./tests/run_all.sh
 
-# Run just integration tests
-./tests/integration/run_all_zabbix_tests.sh
+# Run just integration tests (all suites)
+./tests/integration/run_all.sh
+
+# Run specific integration suite
+./tests/integration/zabbix/run_all.sh
+./tests/integration/installer/run_all.sh
 ```
 
 **Why containerized tests:**
@@ -44,10 +48,10 @@ Fast, isolated tests that run without external dependencies:
 
 ```bash
 # Run all unit tests
-./tests/unit/run_unit_tests.sh
+./tests/unit/run_all.sh
 
 # Run specific test suite
-./tests/unit/cambium-olt-collector/run_cambium_olt_tests.sh
+./tests/unit/cambium-olt-collector/run_all.sh
 ```
 
 **What's tested:**
@@ -68,8 +72,11 @@ Full system tests that verify everything works together:
 
 ```bash
 # Run all integration tests
-./tests/integration/run_all_zabbix_tests.sh
-./tests/integration/run_installer_tests.sh
+./tests/integration/run_all.sh
+
+# Run specific integration suite
+./tests/integration/zabbix/run_all.sh
+./tests/integration/installer/run_all.sh
 
 # Run specific version test
 ./tests/integration/zabbix/test_zabbix74.py
@@ -144,7 +151,10 @@ Use containerized tests during development (no Zabbix installation needed):
 ./tests/integration/installer/test_installer_menu.py
 
 # Test all Zabbix versions
-./tests/integration/run_all_zabbix_tests.sh
+./tests/integration/zabbix/run_all.sh
+
+# Test all integration suites
+./tests/integration/run_all.sh
 ```
 
 ### Pre-Commit Validation
@@ -226,3 +236,10 @@ Tests are designed for automated pipelines:
 - Exit code indicates pass/fail
 - No manual intervention required
 - Docker handles all dependencies
+
+## See Also
+
+- [contributing.md](contributing.md) - Development workflow, git hooks, and making changes
+- [versioning.md](versioning.md) - Release validation and tagging after tests pass
+- [requirements-spec.md](requirements-spec.md) - Template requirements that tests validate
+- [README.md](../README.md) - Project overview and quick start

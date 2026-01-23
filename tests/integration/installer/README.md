@@ -41,7 +41,10 @@ Tests the installer's configuration collection, validation, and dependency manag
 python3 test_installer_menu.py
 
 # Or via the integration test runner
-./run_installer_tests.sh
+./run_all.sh
+
+# Or from the top-level integration runner
+../run_all.sh  # Runs all integration suites including installer
 ```
 
 ## What Gets Caught

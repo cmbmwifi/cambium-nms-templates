@@ -6,9 +6,9 @@ Unit tests for individual components of cambium-nms-templates. These tests are f
 
 ```
 tests/unit/
-├── run_unit_tests.sh              # Main unit test runner
+├── run_all.sh                     # Main unit test runner
 ├── cambium-olt-collector/         # Tests for Cambium OLT data collector
-│   ├── run_cambium_olt_tests.sh   # Runner for this test suite
+│   ├── run_all.sh                 # Runner for this test suite
 │   └── test_error_handling.py     # Error propagation tests
 └── README.md                       # This file
 ```
@@ -28,19 +28,19 @@ Tests for the `cambium_olt_ssh_json.py` data collector script.
 
 **Run these tests:**
 ```bash
-./tests/unit/cambium-olt-collector/run_cambium_olt_tests.sh
+./tests/unit/cambium-olt-collector/run_all.sh
 ```
 
 ## Running Unit Tests
 
 ### Run all unit tests
 ```bash
-./tests/unit/run_unit_tests.sh
+./tests/unit/run_all.sh
 ```
 
 ### Run specific test suite
 ```bash
-./tests/unit/cambium-olt-collector/run_cambium_olt_tests.sh
+./tests/unit/cambium-olt-collector/run_all.sh
 ```
 
 ### Run from project root
@@ -65,10 +65,10 @@ Tests for the `cambium_olt_ssh_json.py` data collector script.
    tests/unit/my-new-component/run_my_tests.sh
    ```
 
-4. **Update the main runner** in `tests/unit/run_unit_tests.sh`:
-   ```bash
-   run_test_suite "My New Component Tests" "$SCRIPT_DIR/my-new-component/run_my_tests.sh"
-   ```
+4. The `tests/unit/run_all.sh` script will **automatically discover** your test suite:
+   - It looks for any `run_*.sh` script in subdirectories
+   - No manual registration required
+   - Just ensure your runner script follows the naming pattern: `run_*.sh`
 
 ## Why Unit Tests?
 

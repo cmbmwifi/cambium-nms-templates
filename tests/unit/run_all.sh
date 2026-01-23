@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Run all tests
-# Discovers and executes all test suites (unit, integration, etc.)
+# Run all unit tests
+# Discovers and executes all unit test suites in subdirectories
 #
 
 set -e
@@ -12,20 +12,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 START_TIME=$(date +%s)
 
 echo "========================================"
-echo "Running All Tests"
+echo "Running All Unit Tests"
 echo "Started: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================"
 echo ""
 
-# Discover all test suites (subdirectories with run_all.sh)
+# Discover all test suites (subdirectories with run_*.sh scripts)
 declare -a TEST_SUITES=()
+declare -A TEST_SCRIPTS=()
 declare -A TEST_RESULTS=()
 declare -A TEST_DURATIONS=()
 
 for dir in "$SCRIPT_DIR"/*/; do
-    if [ -f "$dir/run_all.sh" ]; then
-        suite_name=$(basename "$dir")
+    suite_name=$(basename "$dir")
+    # Look for run_*.sh scripts in each subdirectory
+    run_script=$(find "$dir" -maxdepth 1 -name "run_*.sh" -type f | head -n 1)
+    if [ -n "$run_script" ]; then
         TEST_SUITES+=("$suite_name")
+        TEST_SCRIPTS[$suite_name]="$run_script"
     fi
 done
 
@@ -34,7 +38,7 @@ IFS=$'\n' TEST_SUITES=($(sort <<<"${TEST_SUITES[*]}"))
 unset IFS
 
 if [ ${#TEST_SUITES[@]} -eq 0 ]; then
-    echo "No test suites found (no subdirectories with run_all.sh)"
+    echo "No test suites found (no subdirectories with run_*.sh scripts)"
     exit 1
 fi
 
@@ -48,7 +52,7 @@ for suite in "${TEST_SUITES[@]}"; do
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
     SUITE_START=$(date +%s)
-    if "$SCRIPT_DIR/$suite/run_all.sh"; then
+    if "${TEST_SCRIPTS[$suite]}"; then
         TEST_RESULTS[$suite]=0
         SUITE_END=$(date +%s)
         TEST_DURATIONS[$suite]=$((SUITE_END - SUITE_START))
@@ -73,9 +77,9 @@ echo "========================================"
 ALL_PASSED=true
 for suite in "${TEST_SUITES[@]}"; do
     if [ ${TEST_RESULTS[$suite]} -eq 0 ]; then
-        printf "✓ %-14s PASSED (%ss)\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
+        printf "✓ %-28s PASSED (%ss)\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
     else
-        printf "✗ %-14s FAILED (%ss)\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
+        printf "✗ %-28s FAILED (%ss)\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
         ALL_PASSED=false
     fi
 done
@@ -85,7 +89,7 @@ echo "========================================"
 echo "Timing Summary"
 echo "========================================"
 for suite in "${TEST_SUITES[@]}"; do
-    printf "%-16s %ss\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
+    printf "%-30s %ss\n" "${suite}:" "${TEST_DURATIONS[$suite]}"
 done
 echo "────────────────────────────────────────"
 echo "Total time:    ${TOTAL_DURATION}s"
@@ -94,7 +98,7 @@ echo ""
 
 # Overall result
 if [ "$ALL_PASSED" = true ]; then
-    echo "All tests passed!"
+    echo "All unit tests passed!"
     exit 0
 else
     echo "Some tests failed."

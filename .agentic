@@ -1,0 +1,232 @@
+# AI Assistant Guide for Cambium NMS Templates
+
+## AI Assistant Contract
+
+### MUST Requirements
+
+1. **Documentation Hierarchy**: You MUST prioritize documentation in this order:
+   - `.agentic` (this file) - Canonical AI assistant ruleset
+   - `docs/contributing.md` - Developer onboarding and workflow
+   - `docs/testing.md`, `docs/requirements-spec.md` - Specialized developer guides
+   - `README.md` is for end users only (install/usage) - NOT for development guidance
+
+2. **Testing**: Execute tests before claiming completion. Do not claim tests ran unless actually executed. If unable to run tests, instruct developer to run them:
+   - Unit: `./tests/unit/run_all.sh`
+   - Integration: `./tests/integration/run_all.sh`
+   - Specific suites as appropriate
+
+3. **Linting**: Run and verify before claiming completion:
+   - Python: ruff, mypy
+   - Bash: shellcheck
+   - YAML: yamllint
+
+4. **Breaking Changes**: Do not change public interfaces, CLI arguments, or user-facing behavior without explicitly noting and justifying the break.
+
+5. **Read First**: Read relevant `docs/` before editing unfamiliar areas.
+
+6. **Documentation Gaps**:
+   - If documentation does not adequately explain a component or workflow, say so explicitly.
+   - Do not assert understanding based solely on inference.
+   - When helpful, suggest a new document or section and describe what it should cover.
+   - Never claim codebase understanding that cannot be directly justified.
+
+### SHOULD Requirements
+
+1. Write or update tests alongside code changes
+2. Follow existing patterns in similar files
+3. Run tests incrementally during development
+4. Maintain declarative architecture (YAML-driven, not bash logic in install.sh)
+5. Check `tests/integration/zabbix/base/` for reusable test infrastructure
+
+### MAY Guidance
+
+1. Suggest refactoring for code smells (prioritize functionality)
+2. Propose architectural improvements (document tradeoffs)
+3. Ask clarifying questions for ambiguous requirements
+
+---
+
+## Project Overview
+Network monitoring templates with automated installer to add support for Cambium Networks devices to NMS systems.
+
+## Key Architecture Principles
+
+### Separation of Concerns
+- **Templates** (templates/): Declarative NMS configurations (YAML)
+- **Installer** (install.sh): Bash script that parses requirements.yaml and deploys
+- **Collectors** (*.py): Python scripts for data collection via SSH/API
+- **Tests** (tests/): Hierarchical unit and integration test structure
+
+### Critical Files
+- `install.sh`: Root-level installer (requires sudo, parses YAML, manages deployment)
+- `requirements.yaml`: Declarative template dependencies (see docs/requirements-spec.md)
+- `run_all.sh`: Test runner script available at each level of testing (see docs/testing.md)
+
+## Code Quality Requirements
+
+### Code Quality Control
+- `pyproject.toml`: Python project configuration (ruff, mypy)
+- `.git-hooks/`: Pre-commit (linting) and pre-push (tests) automation
+
+### Before Making Changes
+1. **Read relevant docs**: docs/contributing.md, docs/testing.md, docs/requirements-spec.md
+2. **Linting runs on commit**: Pre-commit hook checks Python/Bash/YAML syntax
+3. **All Integration tests run on push**: Pre-push hook executes full test suite (~4 minutes)
+
+### During Development
+- **Run targeted tests** as you work to ensure coverage:
+  - **Unit tests first** (fast, no external dependencies): `./tests/unit/run_all.sh`
+  - **Integration tests** when NMS environment needed: `./tests/integration/run_all.sh`
+  - **Specific test suites**: `./tests/integration/zabbix/run_all.sh` or `./tests/integration/installer/run_all.sh`
+- **Fix issues immediately** - if you find a bug, add test coverage if reasonably possible
+- **Verify your changes** before committing to catch issues early
+
+### Python Code
+- **Linter**: ruff (formatting + linting)
+- **Type checking**: mypy with strict mode
+- **Style**: Follow existing patterns in templates/zabbix/cambium-fiber/
+- **Error handling**: Proper exception propagation (see tests/unit/cambium-olt-collector/)
+- **Code cleanliness**:
+  - Single Responsibility: Functions/methods do one thing well
+  - Self-documenting: Use descriptive variable/function names instead of comments
+  - Avoid comments: Prefer `server_startup = ...` over `# Start servers` + `result = ...`
+  - Docstrings only: Comments should be docstrings explaining "why", not "what"
+  - DRY principle: Reusable functions in shared modules (see tests/integration/zabbix/base/)
+  - No code smells: Refactor complex logic into smaller, testable functions
+
+### Bash Scripts
+- **Linter**: shellcheck (strict mode)
+- **YAML parsing**: Uses Python's PyYAML (already installed in dev environment)
+- **Root requirement**: install.sh needs sudo for system package installation
+- **Code cleanliness**:
+  - Descriptive variables: `zabbix_startup_result` not `result`
+  - Functions for reusability: Extract repeated logic into functions
+  - Clear naming: Avoid cryptic abbreviations, use full words
+  - Minimal comments: Let variable/function names explain the code
+
+### YAML Files
+- **Linter**: yamllint
+- **Schema**: requirements.yaml follows custom schema (docs/requirements-spec.md)
+- **Templates**: NMS-specific format (Zabbix YAML for template.yaml)
+
+## Development Workflow
+
+### Setup
+```bash
+./scripts/setup-dev-environment.sh  # Installs all tools + git hooks
+```
+
+### Common Tasks
+
+**Add new template:**
+1. Create `templates/<nms>/<product>/` directory
+2. Add `requirements.yaml`, `template.yaml`, and optional collector script
+3. Write integration tests in `tests/integration/`
+4. Run `./tests/run_all.sh`
+
+**Modify installer:**
+1. Edit `install.sh`
+2. Run `shellcheck install.sh`
+3. Test with `./tests/integration/installer/run_all.sh`
+4. Test full workflow with `./tests/integration/run_all.sh`
+
+**Fix bugs:**
+1. Write test to show the proper behavior that exposes the bug (TDD approach)
+2. Prove that the bug is exposed by running the test
+3. Fix the bug
+4. Verify test passes
+5. Confirm health by running the full suite: `./tests/run_all.sh`
+
+### Testing Strategy
+- **Unit tests**: Fast, isolated, no external dependencies
+- **Integration tests**: Docker-based, test against real NMS at all supported versions eg. Zabbix 7.0/7.2/7.4/8.0
+- **Smoke tests**: Manual exploration via `./scripts/smoketest.sh zabbix74`
+
+## Common Pitfalls
+
+### ❌ Don't
+- Commit without running git hooks (pre-commit checks)
+- Edit files without reading relevant documentation first
+- Skip tests (CI will fail)
+- Hardcode values that should be in requirements.yaml
+- Use `python` command directly (use environment detection tools)
+
+### ✅ Do
+- Follow declarative pattern (requirements.yaml, not bash logic)
+- Test across all NMS versions eg. Zabbix (7.0, 7.2, 7.4, 8.0)
+- Use existing test infrastructure (base classes, helpers, assertions)
+- Read existing templates as examples
+- Keep installer logic NMS-agnostic
+
+## File Locations Guide
+
+**Documentation**: `docs/` (contributing.md, testing.md, requirements-spec.md, versioning.md)
+**Templates**: `templates/zabbix/cambium-fiber/` (only existing template currently)
+**Installer**: `install.sh` (root level)
+**Test Infrastructure**: `tests/integration/zabbix/base/` (reusable components)
+**Test Suites**: `tests/integration/zabbix/suites/` (feature-based test organization)
+**Git Hooks**: `.git-hooks/` (copied to .git/hooks/ during setup)
+
+## Debugging
+
+**View test infrastructure status:**
+```bash
+docker ps  # See running containers
+docker-compose -f tests/integration/zabbix/docker-compose.base.yml ps
+```
+
+**Keep environment running after test:**
+```bash
+./tests/integration/zabbix/test_zabbix74.py --keep-running
+# Access: http://localhost:8082 (Admin/zabbix)
+```
+
+**Quick smoke test:**
+```bash
+./scripts/smoketest.sh zabbix74  # Starts Zabbix 7.4 and keeps it running
+```
+
+## Branch Strategy
+
+- **main**: Production-ready, tagged releases (v1.0.0, v1.1.0, etc.)
+- **feature/**: All development work happens here
+- **No develop branch**: Direct feature → main after tests pass
+
+## Version Tagging
+After merging to main:
+```bash
+git tag -a v1.1.0 -m "Release 1.1.0: description"
+git push origin v1.1.0
+```
+
+## AI Assistant Best Practices
+
+### When Suggesting Changes
+1. **Check existing patterns** in similar files first
+2. **Reference documentation** that explains the "why"
+3. **Consider test coverage** - suggest tests alongside code changes
+4. **Respect architecture** - declarative over imperative
+
+### For Complex Tasks
+1. **Break into subtasks**: Use testing milestones as checkpoints
+2. **Run tests frequently**: Unit tests are fast, catch issues early
+3. **Verify across versions**: Integration tests cover Zabbix 7.0-8.0
+4. **Check git hooks work**: Simulate pre-commit/pre-push before committing
+
+### Documentation Hierarchy for AI Assistants
+
+**For Development Tasks** (in priority order):
+1. **`.agentic`** (this file) - Canonical AI assistant contract and architecture guide
+2. **`docs/contributing.md`** - Developer onboarding, workflow, and best practices
+3. **`docs/testing.md`** - Test execution strategies and infrastructure
+4. **`docs/requirements-spec.md`** - Requirements YAML schema and validation
+5. **`docs/versioning.md`** - Release process and version management
+
+**For User-Facing Context**:
+- **`README.md`** - End user documentation (installation, usage, getting started)
+- This is NOT a development reference - do not prioritize it for code changes
+
+**Key Distinction**:
+- `README.md` = Users installing and using the templates
+- `docs/` = Developers contributing to the project
+- `.agentic` = AI assistants working on the codebase

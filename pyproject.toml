@@ -36,3 +36,28 @@ warn_unused_configs = true
 ignore_missing_imports = true
 disallow_untyped_defs = false
 check_untyped_defs = true
+
+[tool.agentic]
+# AI Assistant Configuration
+description = "NMS templates for Cambium Networks with automated installer"
+primary_language = "python"
+secondary_languages = ["bash", "yaml"]
+
+[tool.agentic.workflows]
+# Common development tasks for AI assistants to delegate
+add_template = "Create template structure → Write requirements.yaml → Add integration tests → Run test suite"
+fix_bug = "Write failing test → Implement fix → Verify tests pass → Run full suite"
+refactor = "Identify scope → Write tests for current behavior → Refactor → Verify tests still pass"
+
+[tool.agentic.testing]
+unit_tests = "./tests/unit/run_unit_tests.sh"
+integration_tests = "./tests/integration/run_all_zabbix_tests.sh"
+all_tests = "./tests/run_all.sh"
+smoke_test = "./scripts/smoketest.sh zabbix74"
+
+[tool.agentic.quality_checks]
+python_lint = "ruff check ."
+python_format = "ruff format ."
+bash_lint = "shellcheck install.sh scripts/*.sh"
+yaml_lint = "yamllint ."
+type_check = "mypy templates/ tests/"

@@ -2,6 +2,15 @@
 
 ## Getting Started
 
+### AI Assistant Support
+
+This project includes configuration to help AI coding assistants (GitHub Copilot, Cursor, Codex, etc.) understand the codebase:
+
+- **`.agentic`** - Project structure, conventions, common tasks, and pitfalls
+- **`pyproject.toml [tool.agentic]`** - Workflow definitions and quality check commands
+
+AI assistants can reference these files to provide context-aware suggestions that follow project conventions.
+
 ### Development Environment Setup
 
 **Automated setup** (recommended):
@@ -84,103 +93,46 @@ git push --no-verify
 
 Use `--no-verify` only when you're certain your changes are correct and need to bypass temporarily.
 
-## Making Changes
+## Development Workflow
 
-### Workflow
+1. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature
+   ```
 
-1. **Create a feature branch**: `git checkout -b feature/your-feature`
-2. **Make changes** to templates, scripts, or tests
-3. **Run tests**: `./tests/run_all.sh`
-4. **Commit** (triggers linting): `git commit -m "fix: your change"`
-6. **Push** (triggers tests): `git push`
-7. **Create Pull Request** on GitHub (if contributing to main repository)
+2. **Make your changes**
+   - Templates: `templates/<nms>/<product>/` (see [requirements-spec.md](requirements-spec.md))
+   - Installer: `install.sh`
+   - Tests: `tests/integration/` or `tests/unit/`
 
-## Testing Your Changes
+3. **Test your changes**
+   ```bash
+   # Run all tests
+   ./tests/run_all.sh
 
-**Always test before pushing.**
+   # Or run specific test suites
+   ./tests/unit/run_all.sh              # Fast unit tests
+   ./tests/integration/run_all.sh       # All integration tests
+   ./tests/integration/zabbix/run_all.sh    # Zabbix tests only
+   ```
+   See [testing.md](testing.md) for detailed testing options.
 
-### Templates
+4. **Commit** (triggers pre-commit linting)
+   ```bash
+   git commit -m "fix: your change"
+   ```
 
-Edit files in `templates/<nms>/<product>/`:
-- `requirements.yaml` - Define what the template needs
-- `template.yaml` - The NMS template configuration
-- `*.py` - External scripts the template uses
+5. **Push** (triggers pre-push tests)
+   ```bash
+   git push
+   ```
 
-See [requirements-spec.md](requirements-spec.md) for requirements.yaml format.
-
-### Installer
-
-Modify `install.sh` to change installation behavior, menu logic, or add new features.
-
-### Tests
-
-Add or update tests in `tests/integration/` and/or `tests/unit` to verify your changes work correctly.
-
-## Testing Your Changes
-
-**Always test before pushing.**
-
-The `--local` flag makes the installer use files from `~/cambium-nms-templates/` instead of downloading from GitHub. This solves the circular dependency: you can't test without pushing, but you shouldn't push without testing.
-
-### Automated Tests (Recommended)
-
-Run the containerized test suite to verify your changes:
-```bash
-./tests/integration/run_all_zabbix_tests.sh
-```
-
-Tests run automatically and tear down after completion.
-
-### Manual Smoke Testing (Optional)
-
-For interactive testing and GUI exploration, use the smoke test script:
-
-```bash
-# Start a Zabbix 7.4 environment with mock OLTs
-./scripts/smoketest.sh zabbix74
-
-# Start fresh (clean database, no pre-installed templates)
-./scripts/smoketest.sh --clean zabbix74
-
-# Test other versions
-./scripts/smoketest.sh zabbix70  # Port 8080
-./scripts/smoketest.sh zabbix72  # Port 8081
-./scripts/smoketest.sh zabbix80  # Port 8083
-
-# Stop all environments
-./scripts/smoketest.sh --halt
-```
-
-This keeps containers running so you can:
-- Access Zabbix GUI (Admin/zabbix)
-- Run `install.sh --local` inside the container
-- Debug templates interactively
-- Explore the system manually
-
-**Note**: `./install.sh --local` requires a Zabbix environment (use smoke test script or a live server).
-
-### Full Test Suite
-
-Run all automated tests:
-```bash
-./tests/run_all.sh
-```
-
-Or test specific components:
-```bash
-./tests/integration/run_all_zabbix_tests.sh
-./tests/integration/run_installer_tests.sh
-./tests/unit/run_unit_tests.sh
-```
-
-See [testing.md](testing.md) for details.
-
-## Submitting Changes
-
-1. **Ensure tests pass** - Run `./tests/run_all.sh`
-2. **Commit your changes** - Use clear commit messages
-3. **Push to GitHub** - Changes go live immediately for production users
-4. **Verify production** - Test the curl installer fetches correctly
+6. **Tag release** (after merging to `main`)
+   ```bash
+   git tag -a v1.1.0 -m "Release 1.1.0: description"
+   git push origin v1.1.0
+   ```
+   See [versioning.md](versioning.md) for branch strategy and release guidelines.
 
 ## Adding New Templates
 
@@ -196,7 +148,7 @@ See [testing.md](testing.md) for details.
 
 3. **Test with containers:**
    ```bash
-   ./tests/integration/run_all_zabbix_tests.sh
+   ./tests/integration/zabbix/run_all.sh
    ```
 
 4. **Write integration tests** - Verify template behavior
@@ -205,16 +157,9 @@ See [testing.md](testing.md) for details.
 
 The installer discovers templates automatically - no code changes needed.
 
-## Guidelines
+## See Also
 
-- Test all changes with the containerized test suite before pushing
-- Validate across all supported NMS versions (tests run against Zabbix 7.0, 7.2, 7.4, 8.0)
-- Keep tests fast and focused
-- Document concepts, not implementation details
-- Use `./install.sh --local` only when testing against a live Zabbix server
-
-## Questions?
-
-- **Testing**: See [testing.md](testing.md)
-- **Requirements Format**: See [requirements-spec.md](requirements-spec.md)
-- **Project Structure**: See README.md
+- [versioning.md](versioning.md) - Branch strategy, release tagging, and version management
+- [testing.md](testing.md) - Test architecture, running tests, and debugging
+- [requirements-spec.md](requirements-spec.md) - Template requirements format and philosophy
+- [README.md](../README.md) - Project overview and quick start

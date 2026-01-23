@@ -39,7 +39,7 @@ tests/integration/zabbix/
 
 ```bash
 # Run all Zabbix versions (7.0, 7.2, 7.4)
-./tests/integration/run_all_zabbix_tests.sh
+./tests/integration/zabbix/run_all.sh
 
 # Or run individual version tests
 python3 tests/integration/zabbix/test_zabbix70.py
@@ -68,7 +68,11 @@ Each Zabbix version test runs the following:
 ### Structure
 ```
 tests/integration/
-├── run_all_zabbix_tests.sh        # Runs all version tests
+├── run_all.sh                     # Runs all integration suites
+├── zabbix/
+│   ├── run_all.sh                 # Runs all Zabbix version tests
+├── installer/
+│   ├── run_all.sh                 # Runs all installer tests
 ├── mock-olt/                      # Standalone mock OLT for testing
 │   ├── mock_olt_ssh_server.py
 │   ├── test_mock_olt.py
@@ -170,5 +174,5 @@ class Zabbix74Test(ZabbixTestBase):
 ### Adding a new Zabbix version
 1. Create `docker-compose.zabbix{version}.yml`
 2. Create `test_zabbix{version}.py` with version and compose file
-3. Add to `run_all_zabbix_tests.sh`
+3. Add to `run_all.sh` (auto-discovered by naming convention)
 
